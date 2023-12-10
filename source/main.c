@@ -13,6 +13,10 @@
 
 #define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
 
+#define SELECTED_BOX_COLOR C2D_Color32(0x00, 0x00, 0x00, 0xFF)  // Black
+#define SELECTION_THRESHOLD 10.0f  // Adjust this value to control how close to the center a box needs to be to be selected
+#define OUTLINE_THICKNESS 3.0f  // Adjust this value to control the thickness of the outline
+
 typedef struct {
     float x, y;
     float width, height;
@@ -35,6 +39,11 @@ void drawCarousel(Box* boxes) {
                              C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
 
     for (int i = 0; i < NUM_BOXES; i++) {
+        // Check if the box is near the center of the screen
+        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            // Draw an outline around the box
+            C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
+        }
         C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
     }
 }
