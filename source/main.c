@@ -11,6 +11,8 @@
 #define BOX_SPACING 10
 #define totalWidth NUM_BOXES * (BOX_WIDTH + BOX_SPACING)
 
+#define BOX_TOP_MARGIN 20  // Adjust this value to control the vertical spacing from the top of the screen
+
 #define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
 
 #define SELECTED_BOX_COLOR C2D_Color32(0x00, 0x00, 0x00, 0xFF)  // Black
@@ -25,7 +27,7 @@ typedef struct {
 void initializeBoxes(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
         boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
-        boxes[i].y = 0;
+        boxes[i].y = BOX_TOP_MARGIN;
         boxes[i].width = 128;
         boxes[i].height = 113;
     }
@@ -51,8 +53,8 @@ void drawCarousel(Box* boxes) {
 void scrollCarouselLeft(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
         boxes[i].x -= SCROLL_SPEED;
-        if (boxes[i].x > totalWidth - BOX_WIDTH) {
-            boxes[i].x -= totalWidth;
+        if (boxes[i].x + boxes[i].width < 0) {
+            boxes[i].x += totalWidth;
         }
     }
 }
@@ -101,10 +103,10 @@ int main(int argc, char* argv[]) {
 
         drawCarousel(boxes);
 
-        if (kDown & KEY_DLEFT) {
+        if (kHeld & KEY_DLEFT) {
             scrollCarouselLeft(boxes);
         }
-        if (kDown & KEY_DRIGHT) {
+        if (kHeld & KEY_DRIGHT) {
             scrollCarouselRight(boxes);
         }
 
