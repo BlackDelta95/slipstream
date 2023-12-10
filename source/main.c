@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 		//hidKeysUp returns information about which buttons have been just released
 		u32 kUp = hidKeysUp();
 
-                if (kHeld & KEY_DLEFT) {
+        if (kHeld & KEY_DLEFT) {
             scrollCarouselLeft(boxes);
         }
         if (kHeld & KEY_DRIGHT) {
