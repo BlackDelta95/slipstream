@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
                 C2D_DrawRectangle(boxes[i].x - BOX_WIDTH / 2, boxes[i].y, 0, BOX_WIDTH, BOX_HEIGHT, boxes[i].color, boxes[i].color, boxes[i].color, boxes[i].color);
                 C2D_DrawText(&boxes[i].text, C2D_WithColor, boxes[i].x, boxes[i].y + BOX_HEIGHT, 0.5f, 0.5f, 0.5f, boxes[i].color);
             }
-        }
+        }dfdf
 
         C3D_FrameEnd(0);
     }
