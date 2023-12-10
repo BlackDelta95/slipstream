@@ -3,6 +3,7 @@
 #include <citro2d.h>
 #include <stdlib.h>
 #include <c2d/text.h>
+#include "lodepng.h"
 
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
