@@ -72,9 +72,6 @@ int main(int argc, char* argv[]) {
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
 
-    int frameCounter = 0;
-    int scrollEveryNFrames = 60;  // Adjust this value to control the speed
-
     // Main loop
     while (aptMainLoop()) {
 	    //Scan all the inputs. This should be done once for each frame
@@ -96,10 +93,10 @@ int main(int argc, char* argv[]) {
 
         drawCarousel(boxes);
 
-        if (kDown & KEY_DRIGHT) {
+        if (kDown & KEY_DLEFT) {
             scrollCarouselLeft(boxes);
         }
-        if (kDown & KEY_DLEFT) {
+        if (kDown & KEY_DRIGHT) {
             scrollCarouselRight(boxes);
         }
 
