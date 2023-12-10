@@ -43,6 +43,8 @@ void drawCarousel(Box* boxes) {
 
     C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
     C2D_Text text;
+    float textScale = 0.5f; // Adjust this value to change the size of the text
+    float textHeight = 10.0f; // Adjust this value to change the spacing below the box
 
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
@@ -54,14 +56,17 @@ void drawCarousel(Box* boxes) {
             C2D_TextParse(&text, textBuf, "Selected Box");
             C2D_TextOptimize(&text);
 
-            // Draw the text below the selected box
-            C2D_DrawText(&text, C2D_WithColor, boxes[i].x, boxes[i].y + boxes[i].height, 0.5f, 0.5f, 0.5f, SELECTED_BOX_COLOR);
+            float textWidth = text.width * textScale;
+
+            // Draw the text below the selected box, centered and with more spacing
+            C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
         }
         C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
     }
 
     C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
+
 
 void scrollCarouselLeft(Box* boxes) {
     // Find the selected box
