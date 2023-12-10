@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
         if (kHeld & KEY_DLEFT) {
             scrollCarouselLeft(boxes);
         }
-        if (kHeld & KEY_DRIGHT) {
+        else if (kHeld & KEY_DRIGHT) {
             scrollCarouselRight(boxes);
         }
 
