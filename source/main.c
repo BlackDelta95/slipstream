@@ -2,70 +2,57 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdlib.h>
-#include <c2d/text.h>
-#include "lodepng.h"
 
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
+
+#define NUM_BOXES 5
 #define BOX_WIDTH 128
-#define BOX_HEIGHT 114
-#define BOX_SPACING 20
-#define SCROLL_SPEED  2.0f
-#define NUM_BOXES 5  // Number of boxes
+#define BOX_SPACING 10
+#define totalWidth NUM_BOXES * (BOX_WIDTH + BOX_SPACING)
+
+#define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
 
 typedef struct {
-    float x;
-    float targetX;
-    int y;
-    u32 color;
-    C2D_Text text;
+    float x, y;
+    float width, height;
 } Box;
 
-bool animating = false;
-int direction = 0;  // 1 for right, -1 for left
-
 void initializeBoxes(Box* boxes) {
-    u32 colors[NUM_BOXES] = {
-        C2D_Color32(255, 0, 0, 255),   // Red
-        C2D_Color32(0, 255, 0, 255),   // Green
-        C2D_Color32(0, 0, 255, 255),   // Blue
-        C2D_Color32(255, 255, 0, 255), // Yellow
-        C2D_Color32(0, 255, 255, 255)  // Cyan
-    };
     for (int i = 0; i < NUM_BOXES; i++) {
-        boxes[i] = (Box){i * (BOX_WIDTH + BOX_SPACING), i * (BOX_WIDTH + BOX_SPACING), SCREEN_HEIGHT / 2 - BOX_HEIGHT / 2, colors[i]};
-        char colorText[20];
-        sprintf(colorText, "Color: %u", boxes[i].color);
-        C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
-        C2D_TextParse(&boxes[i].text, textBuf, colorText); // Parse the text to create a C2D_Text object
-        C2D_TextOptimize(&boxes[i].text); // Optimize the text for drawing
+        boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
+        boxes[i].y = 0;
+        boxes[i].width = 128;
+        boxes[i].height = 113;
     }
 }
 
-void updateBoxPositions(Box* boxes) {
-    int totalWidth = NUM_BOXES * (BOX_WIDTH + BOX_SPACING);
+void drawCarousel(Box* boxes) {
+    u32 colors[NUM_BOXES] = {C2D_Color32(0xFF, 0x00, 0x00, 0xFF),  // Red
+                             C2D_Color32(0x00, 0xFF, 0x00, 0xFF),  // Green
+                             C2D_Color32(0x00, 0x00, 0xFF, 0xFF),  // Blue
+                             C2D_Color32(0xFF, 0xFF, 0x00, 0xFF),  // Yellow
+                             C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
+
     for (int i = 0; i < NUM_BOXES; i++) {
-        // If the box is off the screen, instantly move it to its targetX position
-        if (boxes[i].x + BOX_WIDTH < 0 || boxes[i].x - BOX_WIDTH > SCREEN_WIDTH) {
-            boxes[i].x = boxes[i].targetX;
-        } else if (abs(boxes[i].x - boxes[i].targetX) > SCROLL_SPEED) {
-            if (boxes[i].x < boxes[i].targetX) {
-                boxes[i].x += SCROLL_SPEED;
-            } else if (boxes[i].x > boxes[i].targetX) {
-                boxes[i].x -= SCROLL_SPEED;
-            }
-        } else {
-            boxes[i].x = boxes[i].targetX;
-            // Wrap the x position around if it goes off the screen
-            boxes[i].x = fmod(boxes[i].x, totalWidth);
+        C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
+    }
+}
+
+void scrollCarouselLeft(Box* boxes) {
+    for (int i = 0; i < NUM_BOXES; i++) {
+        boxes[i].x -= SCROLL_SPEED;
+        if (boxes[i].x > totalWidth - BOX_WIDTH) {
+            boxes[i].x -= totalWidth;
         }
     }
-    // Check if all boxes have reached their target positions
-    animating = false;
+}
+
+void scrollCarouselRight(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
-        if (boxes[i].x != boxes[i].targetX) {
-            animating = true;
-            break;
+        boxes[i].x += SCROLL_SPEED;
+        if (boxes[i].x > totalWidth - BOX_WIDTH) {
+            boxes[i].x -= totalWidth;
         }
     }
 }
@@ -84,54 +71,19 @@ int main(int argc, char* argv[]) {
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
 
-    int frameCounter = 0;
-    int scrollEveryNFrames = 60;  // Adjust this value to control the speed
-
     // Main loop
     while (aptMainLoop()) {
-        hidScanInput();
+	    //Scan all the inputs. This should be done once for each frame
+		hidScanInput();
 
-        // Respond to user input
-        u32 hatDown = hidKeysHeld();
-        
-        if (!animating && (hatDown & KEY_DRIGHT)) {
-            direction = 1;
-            // Update target positions for scrolling to the right
-            for (int i = 0; i < NUM_BOXES; i++) {
-                float newTargetX = fmod(boxes[i].targetX + (BOX_WIDTH + BOX_SPACING), totalWidth);
-                // If the box is moving off the right end of the carousel, update its x position to be off the screen
-                if (newTargetX < boxes[i].targetX) {
-                    boxes[i].x = newTargetX - (BOX_WIDTH + BOX_SPACING);
-                }
-                boxes[i].targetX = newTargetX;
-            }
-            animating = true;
-        } else if (!animating && (hatDown & KEY_DLEFT)) {
-            direction = -1;
-            // Update target positions for scrolling to the left
-            for (int i = 0; i < NUM_BOXES; i++) {
-                float newTargetX = fmod(boxes[i].targetX - (BOX_WIDTH + BOX_SPACING) + totalWidth, totalWidth);
-                boxes[i].targetX = newTargetX;
-            }
-            animating = true;
-        }
+		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
+		u32 kDown = hidKeysDown();
 
-        if (animating) {
-            updateBoxPositions(boxes);
-            // After updating box positions, check if any box has moved off the screen
-            for (int i = 0; i < NUM_BOXES; i++) {
-                if (boxes[i].x + BOX_WIDTH < 0) {
-                    // If the box has moved off the screen, update its x position to be at the right end of the carousel
-                    boxes[i].x += totalWidth;
-                    // Shift the box to the end of the array
-                    Box temp = boxes[i];
-                    for (int j = i; j < NUM_BOXES - 1; j++) {
-                        boxes[j] = boxes[j + 1];
-                    }
-                    boxes[NUM_BOXES - 1] = temp;
-                }
-            }
-        }
+		//hidKeysHeld returns information about which buttons have are held down in this frame
+		u32 kHeld = hidKeysHeld();
+
+		//hidKeysUp returns information about which buttons have been just released
+		u32 kUp = hidKeysUp();
 
         // Render the scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -140,10 +92,10 @@ int main(int argc, char* argv[]) {
 
         drawCarousel(boxes);
 
-        if (kDown & KEY_DRIGHT) {
+        if (kDown & KEY_DLEFT) {
             scrollCarouselLeft(boxes);
         }
-        if (kDown & KEY_DLEFT) {
+        if (kDown & KEY_DRIGHT) {
             scrollCarouselRight(boxes);
         }
 
