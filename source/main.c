@@ -137,17 +137,17 @@ int main(int argc, char* argv[]) {
 
         drawCarousel(boxes);
 
-           // Check if the selected box has reached the target position
-    int selectedIndex = -1;
-    for (int i = 0; i < NUM_BOXES; i++) {
-        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-            selectedIndex = i;
-            break;
+        // Check if the selected box has reached the target position
+        int selectedIndex = -1;
+        for (int i = 0; i < NUM_BOXES; i++) {
+            if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+                selectedIndex = i;
+                break;
+            }
         }
-    }
-    if (selectedIndex != -1 && abs(boxes[selectedIndex].x - target) < SCROLL_SPEED) {
-        target = -1;  // Reset the target position
-    }
+        if (selectedIndex != -1 && abs(boxes[selectedIndex].x - target) < SCROLL_SPEED) {
+            target = -1;  // Reset the target position
+        }
 
         C3D_FrameEnd(0);
     }
