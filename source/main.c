@@ -14,7 +14,7 @@
 #define BOX_TOP_MARGIN 20  // Adjust this value to control the vertical spacing from the top of the screen
 
 #define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
-float target = -1;
+float target = -1;  // Global variable to store the target position
 
 #define SELECTED_BOX_COLOR C2D_Color32(0x00, 0x00, 0x00, 0xFF)  // Black
 #define SELECTION_THRESHOLD 10.0f  // Adjust this value to control how close to the center a box needs to be to be selected
