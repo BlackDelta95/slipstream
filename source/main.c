@@ -41,14 +41,26 @@ void drawCarousel(Box* boxes) {
                              C2D_Color32(0xFF, 0xFF, 0x00, 0xFF),  // Yellow
                              C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
 
+    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
+    C2D_Text text;
+
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             // Draw an outline around the box
             C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
+
+            // Set the text for the selected box
+            C2D_TextParse(&text, textBuf, "Selected Box");
+            C2D_TextOptimize(&text);
+
+            // Draw the text below the selected box
+            C2D_DrawText(&text, C2D_WithColor, boxes[i].x, boxes[i].y + boxes[i].height, 0.5f, 0.5f, 0.5f, SELECTED_BOX_COLOR);
         }
         C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
     }
+
+    C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
 
 void scrollCarouselLeft(Box* boxes) {
