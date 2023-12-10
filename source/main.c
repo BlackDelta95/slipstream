@@ -123,19 +123,19 @@ int main(int argc, char* argv[]) {
 		//hidKeysUp returns information about which buttons have been just released
 		u32 kUp = hidKeysUp();
 
+                if (kHeld & KEY_DLEFT) {
+            scrollCarouselLeft(boxes);
+        }
+        if (kHeld & KEY_DRIGHT) {
+            scrollCarouselRight(boxes);
+        }
+
         // Render the scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
         drawCarousel(boxes);
-
-        if (kHeld & KEY_DLEFT) {
-            scrollCarouselLeft(boxes);
-        }
-        if (kHeld & KEY_DRIGHT) {
-            scrollCarouselRight(boxes);
-        }
 
            // Check if the selected box has reached the target position
     int selectedIndex = -1;
