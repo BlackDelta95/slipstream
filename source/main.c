@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
                     boxes[NUM_BOXES - 1] = temp;
                 }
             }
-        }
+        }sdss
 
         // Render the scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
