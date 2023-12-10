@@ -14,6 +14,7 @@
 #define BOX_TOP_MARGIN 20  // Adjust this value to control the vertical spacing from the top of the screen
 
 #define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
+float target = -1;
 
 #define SELECTED_BOX_COLOR C2D_Color32(0x00, 0x00, 0x00, 0xFF)  // Black
 #define SELECTION_THRESHOLD 10.0f  // Adjust this value to control how close to the center a box needs to be to be selected
@@ -51,6 +52,19 @@ void drawCarousel(Box* boxes) {
 }
 
 void scrollCarouselLeft(Box* boxes) {
+    // Find the selected box
+    int selectedIndex = -1;
+    for (int i = 0; i < NUM_BOXES; i++) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            selectedIndex = i;
+            break;
+        }
+    }
+
+    // Calculate the target position for the next box
+    target = boxes[(selectedIndex - 1 + NUM_BOXES) % NUM_BOXES].x;
+
+    // Scroll the carousel
     for (int i = 0; i < NUM_BOXES; i++) {
         boxes[i].x -= SCROLL_SPEED;
         if (boxes[i].x + boxes[i].width < 0) {
@@ -60,6 +74,19 @@ void scrollCarouselLeft(Box* boxes) {
 }
 
 void scrollCarouselRight(Box* boxes) {
+    // Find the selected box
+    int selectedIndex = -1;
+    for (int i = 0; i < NUM_BOXES; i++) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            selectedIndex = i;
+            break;
+        }
+    }
+
+    // Calculate the target position for the next box
+    target = boxes[(selectedIndex + 1) % NUM_BOXES].x;
+
+    // Scroll the carousel
     for (int i = 0; i < NUM_BOXES; i++) {
         boxes[i].x += SCROLL_SPEED;
         if (boxes[i].x > totalWidth - BOX_WIDTH) {
@@ -109,6 +136,18 @@ int main(int argc, char* argv[]) {
         if (kHeld & KEY_DRIGHT) {
             scrollCarouselRight(boxes);
         }
+
+           // Check if the selected box has reached the target position
+    int selectedIndex = -1;
+    for (int i = 0; i < NUM_BOXES; i++) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            selectedIndex = i;
+            break;
+        }
+    }
+    if (selectedIndex != -1 && abs(boxes[selectedIndex].x - target) < SCROLL_SPEED) {
+        target = -1;  // Reset the target position
+    }
 
         C3D_FrameEnd(0);
     }
