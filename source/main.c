@@ -27,13 +27,13 @@ float target = -1;  // Global variable to store the target position
 typedef struct {
     float x, y;
     float width, height;
-    int UID;  // Add this line
+    int UID;
 } Box;
 
 typedef struct {
     int UID;
     char* GameName;
-    char* GameDescription;  // Add this line
+    char* GameDescription;
 } Record;
 
 Record database[] = {
@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
+        // Grab the UID of the currently selected box
         int selectedUID = drawCarousel(boxes);
 
         // Render the bottom scene
@@ -238,8 +239,6 @@ int main(int argc, char* argv[]) {
         }
 
         C3D_FrameEnd(0);
-        
-
     }
 
     // Deinit libs
