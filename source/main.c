@@ -88,6 +88,7 @@ C2D_Image convertPNGToC2DImage(const char* filename) {
     free(image);
     lodepng_state_cleanup(&state);
     
+        printf("Loading image");
     return img;
 }
 
@@ -269,11 +270,14 @@ int main(int argc, char* argv[]) {
     C2D_Prepare();
 
     // Remove for debugging
-	//consoleInit(GFX_BOTTOM, NULL);
+	consoleInit(GFX_BOTTOM, NULL);
 
     // Create screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+
+    const char* filename = "test.png";
+    C2D_Image img = convertPNGToC2DImage(filename);
 
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
@@ -306,7 +310,6 @@ int main(int argc, char* argv[]) {
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
-
         /* Draw the image at position (x, y) */
         float x = 0.0f; /* Replace with your x-coordinate */
         float y = 0.0f; /* Replace with your y-coordinate */
@@ -315,18 +318,14 @@ int main(int argc, char* argv[]) {
         int selectedUID = drawCarousel(boxes);
 
         if (kHeld & KEY_A) {
-            launchTitle(selectedUID);
+            C2D_DrawImageAt(img, x, y, 0.5f, NULL, 1.0f, 1.0f);
+            //launchTitle(selectedUID);
         }
 
         // Render the bottom scene
-        C2D_SceneBegin(bot);
-        C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-        printDescription(selectedUID);
-
-            const char* filename = "test.png";
-    C2D_Image img = convertPNGToC2DImage(filename);
-        C2D_DrawImageAt(img, x, y, 0.5f, NULL, 1.0f, 1.0f);
-
+        //C2D_SceneBegin(bot);
+        //C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        //printDescription(selectedUID);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
