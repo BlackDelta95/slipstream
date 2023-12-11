@@ -45,6 +45,52 @@ Record database[] = {
     // Add more records here...
 };
 
+C2D_Image convertPNGToC2DImage(const char* filename) {
+    unsigned error;
+    unsigned char* image;
+    unsigned width, height;
+    size_t pngsize;
+    LodePNGState state;
+
+    lodepng_state_init(&state);
+    state.info_raw.colortype = LCT_RGBA;
+
+    error = lodepng_load_file(&image, &pngsize, filename);
+    if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
+
+    error = lodepng_decode(&image, &width, &height, &state, image, pngsize);
+    if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
+
+    C2D_Image img;
+    img.tex = (C3D_Tex*)malloc(sizeof(C3D_Tex));
+    Tex3DS_SubTexture subtex = {(u16)width, (u16)height, 0.0f, 1.0f, width / 512.0f, 1.0f - (height / 512.0f)};
+    img.subtex = &subtex;
+
+    C3D_TexInit(img.tex, 512, 512, GPU_RGBA8);
+    C3D_TexSetFilter(img.tex, GPU_LINEAR, GPU_LINEAR);
+    img.tex->border = 0xFFFFFFFF;
+    C3D_TexSetWrap(img.tex, GPU_CLAMP_TO_BORDER, GPU_CLAMP_TO_BORDER);
+
+    for (u32 x = 0; x < width && x < 512; x++) {
+        for (u32 y = 0; y < height && y < 512; y++) {
+            const u32 dstPos = ((((y >> 3) * (512 >> 3) + (x >> 3)) << 6) +
+                                ((x & 1) | ((y & 1) << 1) | ((x & 2) << 1) | ((y & 2) << 2) |
+                                ((x & 4) << 2) | ((y & 4) << 3))) * 4;
+
+            const u32 srcPos = (y * width + x) * 4;
+            ((uint8_t *)img.tex->data)[dstPos + 0] = image[srcPos + 3];
+            ((uint8_t *)img.tex->data)[dstPos + 1] = image[srcPos + 2];
+            ((uint8_t *)img.tex->data)[dstPos + 2] = image[srcPos + 1];
+            ((uint8_t *)img.tex->data)[dstPos + 3] = image[srcPos + 0];
+        }
+    }
+
+    free(image);
+    lodepng_state_cleanup(&state);
+    
+    return img;
+}
+
 // Load in the games
 void initializeBoxes(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
@@ -54,6 +100,36 @@ void initializeBoxes(Box* boxes) {
         boxes[i].height = 113;
         boxes[i].UID = i;  // Assign a unique UID to each box
     }
+}
+
+// Launch the selected title
+void launchTitle(int UID) {
+    // Look up the box's UID in the database
+    char* game_name = NULL;
+    for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
+        if (database[j].UID == UID) {
+            game_name = database[j].GameName;
+            break;
+        }
+    }
+
+    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
+    C2D_Text text;
+    float textScale = 0.5f; // Adjust this value to change the size of the text
+
+    C2D_TextParse(&text, textBuf, "Launching Game");
+    C2D_TextOptimize(&text);
+
+    // Adjust these values to change the position of the text
+    float textX = 10.0f; // Adjust this value to change the horizontal position of the text
+    float textY = 10.0f; // Adjust this value to change the vertical position of the text
+
+    // Adjust this value to change the size of the margin
+    float margin = 60.0f;
+
+    C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
+
+    C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
 
 // Print the description of the currently selected game
@@ -185,42 +261,15 @@ void scrollCarouselRight(Box* boxes) {
     }
 }
 
-// Launch the selected title
-void launchTitle(int UID) {
-    // Look up the box's UID in the database
-    char* game_name = NULL;
-    for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
-        if (database[j].UID == UID) {
-            game_name = database[j].GameName;
-            break;
-        }
-    }
-
-    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
-    C2D_Text text;
-    float textScale = 0.5f; // Adjust this value to change the size of the text
-
-    C2D_TextParse(&text, textBuf, "Launching Game");
-    C2D_TextOptimize(&text);
-
-    // Adjust these values to change the position of the text
-    float textX = 10.0f; // Adjust this value to change the horizontal position of the text
-    float textY = 10.0f; // Adjust this value to change the vertical position of the text
-
-    // Adjust this value to change the size of the margin
-    float margin = 60.0f;
-
-    C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
-
-    C2D_TextBufDelete(textBuf); // Delete the text buffer
-}
-
 int main(int argc, char* argv[]) {
     // Init libs
     gfxInitDefault();
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C2D_Prepare();
+
+    // Remove for debugging
+	consoleInit(GFX_BOTTOM, NULL);
 
     // Create screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -232,6 +281,7 @@ int main(int argc, char* argv[]) {
 
     // Main loop
     while (aptMainLoop()) {
+
 	    //Scan all the inputs. This should be done once for each frame
 		hidScanInput();
 
@@ -256,6 +306,13 @@ int main(int argc, char* argv[]) {
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
+        const char* filename = "test.png";
+        C2D_Image img = convertPNGToC2DImage(filename);
+        /* Draw the image at position (x, y) */
+        float x = 0.0f; /* Replace with your x-coordinate */
+        float y = 0.0f; /* Replace with your y-coordinate */
+        C2D_DrawImageAt(img, x, y, 0.5f, NULL, 1.0f, 1.0f);
+
         // Grab the UID of the currently selected box
         int selectedUID = drawCarousel(boxes);
 
@@ -264,9 +321,9 @@ int main(int argc, char* argv[]) {
         }
 
         // Render the bottom scene
-        C2D_SceneBegin(bot);
-        C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-        printDescription(selectedUID);
+        //C2D_SceneBegin(bot);
+        //C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        // printDescription(selectedUID);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
