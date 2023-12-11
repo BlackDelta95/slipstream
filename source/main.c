@@ -13,7 +13,7 @@
 
 #define BOX_TOP_MARGIN 20  // Adjust this value to control the vertical spacing from the top of the screen
 
-#define SCROLL_SPEED 2.0f  // Adjust this value to control the speed of the animation
+#define SCROLL_SPEED 4.0f  // Adjust this value to control the speed of the animation
 float target = -1;  // Global variable to store the target position
 
 #define SELECTED_BOX_COLOR C2D_Color32(0x00, 0x00, 0x00, 0xFF)  // Black
@@ -167,10 +167,10 @@ int main(int argc, char* argv[]) {
 		//hidKeysUp returns information about which buttons have been just released
 		u32 kUp = hidKeysUp();
 
-        if (kHeld & KEY_DLEFT) {
+        if (kHeld & KEY_DRIGHT) {
             scrollCarouselLeft(boxes);
         }
-        else if (kHeld & KEY_DRIGHT) {
+        else if (kHeld & KEY_DLEFT) {
             scrollCarouselRight(boxes);
         }
 
