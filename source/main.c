@@ -5,9 +5,8 @@
 
 #define TOP_SCREEN_WIDTH  400
 #define TOP_SCREEN_HEIGHT 240
-#define BOTTOM_SCREEN_WIDTH 160
+#define BOTTOM_SCREEN_WIDTH 320
 #define BOTTOM_SCREEN_HEIGHT 240
-
 
 #define NUM_BOXES 5
 #define BOX_WIDTH 128
@@ -78,7 +77,10 @@ void printDescription(int UID) {
         float textX = 10.0f; // Adjust this value to change the horizontal position of the text
         float textY = 10.0f; // Adjust this value to change the vertical position of the text
 
-        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * textX);
+        // Adjust this value to change the size of the margin
+        float margin = 60.0f;
+
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
 
         C2D_TextBufDelete(textBuf); // Delete the text buffer
     }
