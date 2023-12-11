@@ -20,6 +20,7 @@ float target = -1;  // Global variable to store the target position
 #define SELECTION_THRESHOLD 10.0f  // Adjust this value to control how close to the center a box needs to be to be selected
 #define OUTLINE_THICKNESS 3.0f  // Adjust this value to control the thickness of the outline
 
+// Class for the boxes displayed on the screen
 typedef struct {
     float x, y;
     float width, height;
@@ -32,6 +33,7 @@ typedef struct {
     char* GameName;
 } Record;
 
+// A fake database, just for testing
 Record database[] = {
     {0, "Galaga"},
     {1, "Super Mario Bros"},
@@ -94,7 +96,6 @@ void drawCarousel(Box* boxes) {
     C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
 
-
 void scrollCarouselLeft(Box* boxes) {
     // Find the selected box
     int selectedIndex = -1;
@@ -145,10 +146,11 @@ int main(int argc, char* argv[]) {
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C2D_Prepare();
-    consoleInit(GFX_BOTTOM, NULL);
 
     // Create screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+    C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
@@ -174,11 +176,16 @@ int main(int argc, char* argv[]) {
             scrollCarouselRight(boxes);
         }
 
-        // Render the scene
+        // Render the top scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
+        drawCarousel(boxes);
+
+        // Render the bottom scene
+        C2D_SceneBegin(bot);
+        C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         drawCarousel(boxes);
 
         // Check if the selected box has reached the target position
@@ -194,6 +201,8 @@ int main(int argc, char* argv[]) {
         }
 
         C3D_FrameEnd(0);
+        
+
     }
 
     // Deinit libs
