@@ -44,6 +44,7 @@ Record database[] = {
     // Add more records here...
 };
 
+// Load in the games
 void initializeBoxes(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
         boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
@@ -54,6 +55,7 @@ void initializeBoxes(Box* boxes) {
     }
 }
 
+// Print the description of the currently selected game
 void printDescription(int UID) {
     // Look up the box's UID in the database
     char* game_description = NULL;
@@ -86,6 +88,7 @@ void printDescription(int UID) {
     }
 }
 
+// Render the carousel
 int drawCarousel(Box* boxes) {
     u32 colors[NUM_BOXES] = {C2D_Color32(0xFF, 0x00, 0x00, 0xFF),  // Red
                              C2D_Color32(0x00, 0xFF, 0x00, 0xFF),  // Green
@@ -135,6 +138,7 @@ int drawCarousel(Box* boxes) {
     return selectedUID;  // Add this line
 }
 
+// Scroll the carousel left
 void scrollCarouselLeft(Box* boxes) {
     // Find the selected box
     int selectedIndex = -1;
@@ -157,6 +161,7 @@ void scrollCarouselLeft(Box* boxes) {
     }
 }
 
+// Scroll the carousel right
 void scrollCarouselRight(Box* boxes) {
     // Find the selected box
     int selectedIndex = -1;
@@ -177,6 +182,36 @@ void scrollCarouselRight(Box* boxes) {
             boxes[i].x -= totalWidth;
         }
     }
+}
+
+// Launch the selected title
+void launchTitle(int UID) {
+    // Look up the box's UID in the database
+    char* game_name = NULL;
+    for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
+        if (database[j].UID == UID) {
+            game_name = database[j].GameName;
+            break;
+        }
+    }
+
+    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
+    C2D_Text text;
+    float textScale = 0.5f; // Adjust this value to change the size of the text
+
+    C2D_TextParse(&text, textBuf, game_name);
+    C2D_TextOptimize(&text);
+
+    // Adjust these values to change the position of the text
+    float textX = 10.0f; // Adjust this value to change the horizontal position of the text
+    float textY = 10.0f; // Adjust this value to change the vertical position of the text
+
+    // Adjust this value to change the size of the margin
+    float margin = 60.0f;
+
+    C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
+
+    C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
 
 int main(int argc, char* argv[]) {
@@ -224,7 +259,7 @@ int main(int argc, char* argv[]) {
         int selectedUID = drawCarousel(boxes);
 
         if (kHeld & KEY_A) {
-            printDescription(selectedUID)
+            launchTitle(selectedUID);
         }
 
         // Render the bottom scene
