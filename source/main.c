@@ -106,7 +106,6 @@ void drawCarousel(Box* boxes) {
             for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
                 if (database[j].UID == boxes[i].UID) {
                     game_name = database[j].GameName;
-                    printDescription(boxes[i].UID)
                     break;
                 }
             }
