@@ -223,6 +223,10 @@ int main(int argc, char* argv[]) {
         // Grab the UID of the currently selected box
         int selectedUID = drawCarousel(boxes);
 
+        if (kHeld & KEY_A) {
+            printDescription(selectedUID)
+        }
+
         // Render the bottom scene
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
