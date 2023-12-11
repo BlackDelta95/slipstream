@@ -3,8 +3,11 @@
 #include <citro2d.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH  400
-#define SCREEN_HEIGHT 240
+#define TOP_SCREEN_WIDTH  400
+#define TOP_SCREEN_HEIGHT 240
+#define BOTTOM_SCREEN_WIDTH 160
+#define BOTTOM_SCREEN_HEIGHT 240
+
 
 #define NUM_BOXES 5
 #define BOX_WIDTH 128
@@ -70,13 +73,12 @@ void printDescription(int UID) {
 
         C2D_TextParse(&text, textBuf, game_description);
         C2D_TextOptimize(&text);
-        float textWidth = text.width * textScale;
 
         // Adjust these values to change the position of the text
-        float textX = SCREEN_WIDTH / 2 - textWidth / 2;
-        float textY = SCREEN_HEIGHT - 20;
+        float textX = 10.0f; // Adjust this value to change the horizontal position of the text
+        float textY = 10.0f; // Adjust this value to change the vertical position of the text
 
-        C2D_DrawText(&text, C2D_WithColor, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * textX);
 
         C2D_TextBufDelete(textBuf); // Delete the text buffer
     }
@@ -99,7 +101,7 @@ int drawCarousel(Box* boxes) {
 
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
-        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID;  // Add this line
 
             // Draw an outline around the box
@@ -135,7 +137,7 @@ void scrollCarouselLeft(Box* boxes) {
     // Find the selected box
     int selectedIndex = -1;
     for (int i = 0; i < NUM_BOXES; i++) {
-        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedIndex = i;
             break;
         }
@@ -157,7 +159,7 @@ void scrollCarouselRight(Box* boxes) {
     // Find the selected box
     int selectedIndex = -1;
     for (int i = 0; i < NUM_BOXES; i++) {
-        if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedIndex = i;
             break;
         }
@@ -226,7 +228,7 @@ int main(int argc, char* argv[]) {
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
         for (int i = 0; i < NUM_BOXES; i++) {
-            if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
                 selectedIndex = i;
                 break;
             }
