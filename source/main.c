@@ -27,19 +27,18 @@ typedef struct {
     int UID;  // Add this line
 } Box;
 
-// Example struct array to simulate a dictionary
 typedef struct {
     int UID;
     char* GameName;
+    char* GameDescription;  // Add this line
 } Record;
 
-// A fake database, just for testing
 Record database[] = {
-    {0, "Galaga"},
-    {1, "Super Mario Bros"},
-    {2, "Donkey Kong"},
-    {3, "Contra"},
-    {4, "Legend of Zelda"}
+    {0, "Galaga", "A popular space shooter game from the 80s"},
+    {1, "Super Mario Bros", "A classic platformer featuring the famous plumber, Mario"},
+    {2, "Donkey Kong", "An arcade game where Mario must rescue Pauline from Donkey Kong"},
+    {3, "Contra", "A run and gun action game featuring soldiers Bill and Lance"},
+    {4, "Legend of Zelda", "An action-adventure game set in the fantasy land of Hyrule"}
     // Add more records here...
 };
 
@@ -50,6 +49,36 @@ void initializeBoxes(Box* boxes) {
         boxes[i].width = 128;
         boxes[i].height = 113;
         boxes[i].UID = i;  // Assign a unique UID to each box
+    }
+}
+
+void printDescription(int UID) {
+    // Look up the box's UID in the database
+    char* game_description = NULL;
+    for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
+        if (database[j].UID == UID) {
+            game_description = database[j].GameDescription;
+            break;
+        }
+    }
+
+    // Print the game description on the bottom screen
+    if (game_description != NULL) {
+        C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
+        C2D_Text text;
+        float textScale = 0.5f; // Adjust this value to change the size of the text
+
+        C2D_TextParse(&text, textBuf, game_description);
+        C2D_TextOptimize(&text);
+        float textWidth = text.width * textScale;
+
+        // Adjust these values to change the position of the text
+        float textX = SCREEN_WIDTH / 2 - textWidth / 2;
+        float textY = SCREEN_HEIGHT - 20;
+
+        C2D_DrawText(&text, C2D_WithColor, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
+
+        C2D_TextBufDelete(textBuf); // Delete the text buffer
     }
 }
 
@@ -77,6 +106,7 @@ void drawCarousel(Box* boxes) {
             for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
                 if (database[j].UID == boxes[i].UID) {
                     game_name = database[j].GameName;
+                    printDescription(boxes[i].UID)
                     break;
                 }
             }
@@ -186,7 +216,6 @@ int main(int argc, char* argv[]) {
         // Render the bottom scene
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-        drawCarousel(boxes);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
