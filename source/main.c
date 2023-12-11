@@ -23,7 +23,23 @@ float target = -1;  // Global variable to store the target position
 typedef struct {
     float x, y;
     float width, height;
+    int UID;  // Add this line
 } Box;
+
+// Example struct array to simulate a dictionary
+typedef struct {
+    int UID;
+    char* GameName;
+} Record;
+
+Record database[] = {
+    {0, "Galaga"},
+    {1, "Super Mario Bros"},
+    {2, "Donkey Kong"},
+    {3, "Contra"},
+    {4, "Legend of Zelda"}
+    // Add more records here...
+};
 
 void initializeBoxes(Box* boxes) {
     for (int i = 0; i < NUM_BOXES; i++) {
@@ -31,6 +47,7 @@ void initializeBoxes(Box* boxes) {
         boxes[i].y = BOX_TOP_MARGIN;
         boxes[i].width = 128;
         boxes[i].height = 113;
+        boxes[i].UID = i;  // Assign a unique UID to each box
     }
 }
 
@@ -45,6 +62,7 @@ void drawCarousel(Box* boxes) {
     C2D_Text text;
     float textScale = 0.5f; // Adjust this value to change the size of the text
     float textHeight = 10.0f; // Adjust this value to change the spacing below the box
+    float textWidth = text.width * textScale;
 
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
@@ -52,14 +70,23 @@ void drawCarousel(Box* boxes) {
             // Draw an outline around the box
             C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
 
+            // Look up the box's UID in the database
+            char* game_name = NULL;
+            for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
+                if (database[j].UID == boxes[i].UID) {
+                    game_name = database[j].GameName;
+                    break;
+                }
+            }
+
             // Set the text for the selected box
-            C2D_TextParse(&text, textBuf, "Selected Box");
-            C2D_TextOptimize(&text);
+            if (game_name != NULL) {
+                C2D_TextParse(&text, textBuf, game_name);
+                C2D_TextOptimize(&text);
+                float textWidth = text.width * textScale;
+                C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
+            }
 
-            float textWidth = text.width * textScale;
-
-            // Draw the text below the selected box, centered and with more spacing
-            C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
         }
         C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
     }
