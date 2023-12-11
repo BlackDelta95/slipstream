@@ -82,7 +82,7 @@ void printDescription(int UID) {
     }
 }
 
-void drawCarousel(Box* boxes) {
+int drawCarousel(Box* boxes) {
     u32 colors[NUM_BOXES] = {C2D_Color32(0xFF, 0x00, 0x00, 0xFF),  // Red
                              C2D_Color32(0x00, 0xFF, 0x00, 0xFF),  // Green
                              C2D_Color32(0x00, 0x00, 0xFF, 0xFF),  // Blue
@@ -95,9 +95,13 @@ void drawCarousel(Box* boxes) {
     float textHeight = 10.0f; // Adjust this value to change the spacing below the box
     float textWidth = text.width * textScale;
 
+    int selectedUID = -1;  // Add this line
+
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            selectedUID = boxes[i].UID;  // Add this line
+
             // Draw an outline around the box
             C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
 
@@ -123,6 +127,8 @@ void drawCarousel(Box* boxes) {
     }
 
     C2D_TextBufDelete(textBuf); // Delete the text buffer
+
+    return selectedUID;  // Add this line
 }
 
 void scrollCarouselLeft(Box* boxes) {
@@ -210,11 +216,12 @@ int main(int argc, char* argv[]) {
         C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         C2D_SceneBegin(top);
 
-        drawCarousel(boxes);
+        int selectedUID = drawCarousel(boxes);
 
         // Render the bottom scene
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        printDescription(selectedUID);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
