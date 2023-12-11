@@ -2,6 +2,7 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdlib.h>
+#include "lodepng.h"
 
 #define TOP_SCREEN_WIDTH  400
 #define TOP_SCREEN_HEIGHT 240
@@ -199,7 +200,7 @@ void launchTitle(int UID) {
     C2D_Text text;
     float textScale = 0.5f; // Adjust this value to change the size of the text
 
-    C2D_TextParse(&text, textBuf, game_name);
+    C2D_TextParse(&text, textBuf, "Launching Game");
     C2D_TextOptimize(&text);
 
     // Adjust these values to change the position of the text
