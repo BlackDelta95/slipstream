@@ -276,9 +276,8 @@ int main(int argc, char* argv[]) {
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-    const char* filename = "test.png";
+    const char* filename = "img1.png";
     C2D_Image img = convertPNGToC2DImage(filename);
-
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
