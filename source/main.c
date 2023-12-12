@@ -99,7 +99,7 @@ void initializeBoxes(Box* boxes) {
         boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
         boxes[i].y = BOX_TOP_MARGIN;
         boxes[i].width = 128;
-        boxes[i].height = 113;
+        boxes[i].height = 130;
         boxes[i].UID = i;  // Assign a unique UID to each box
 
         // Load the PNG image for the game
@@ -193,9 +193,6 @@ int drawCarousel(Box* boxes) {
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID;  // Add this line
 
-            // Draw an outline around the box
-            C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
-
             // Look up the box's UID in the database
             char* game_name = NULL;
             for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
@@ -282,9 +279,6 @@ int main(int argc, char* argv[]) {
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-    const char* filename = "img1.png";
-    C2D_Image img = convertPNGToC2DImage(filename);
-
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
 
@@ -323,8 +317,7 @@ int main(int argc, char* argv[]) {
         int selectedUID = drawCarousel(boxes);
 
         if (kHeld & KEY_A) {
-            C2D_DrawImageAt(img, x, y, 0.5f, NULL, 1.0f, 1.0f);
-            //launchTitle(selectedUID);
+            launchTitle(selectedUID);
         }
 
         // Render the bottom scene
