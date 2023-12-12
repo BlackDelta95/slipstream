@@ -38,11 +38,11 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Galaga", "A popular space shooter game from the 80s"},
-    {1, "Super Mario Bros", "A classic platformer featuring the famous plumber, Mario"},
-    {2, "Donkey Kong", "An arcade game where Mario must rescue Pauline from Donkey Kong"},
-    {3, "Contra", "A run and gun action game featuring soldiers Bill and Lance"},
-    {4, "Legend of Zelda", "An action-adventure game set in the fantasy land of Hyrule"}
+    {0, "Pokémon Alpha Sapphire", "A remake of the original Pokémon Sapphire game for the Game Boy Advance. It features updated graphics and new gameplay mechanics."},
+    {1, "Super Mario 3D Land", "A platform game that has taken the spirit of the earlier 2D Mario titles and translated it brilliantly into 3D."},
+    {2, "Super Smash Bros. for Nintendo 3DS", "A crossover fighting game with characters from various Nintendo franchises."},
+    {3, "The Legend of Zelda: Ocarina of Time 3D", "A remake of the original game for the Nintendo 64. It features updated graphics, stereoscopic 3D effects, and mirrored versions of the rearranged dungeons."},
+    {4, "Metroid: Samus Returns", "An action-adventure game where players control Samus Aran who aims to eradicate the parasitic Metroids."}
     // Add more records here...
 };
 
@@ -88,8 +88,6 @@ C2D_Image convertPNGToC2DImage(const char* filename) {
 
     free(image);
     lodepng_state_cleanup(&state);
-    
-        printf("Loading image");
     return img;
 }
 
@@ -99,12 +97,13 @@ void initializeBoxes(Box* boxes) {
         boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
         boxes[i].y = BOX_TOP_MARGIN;
         boxes[i].width = 128;
-        boxes[i].height = 113;
+        boxes[i].height = 130;
         boxes[i].UID = i;  // Assign a unique UID to each box
 
         // Load the PNG image for the game
         char filename[256];
         sprintf(filename, "game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
+        printf("Loading image from file: %s\n", filename);
         boxes[i].image = convertPNGToC2DImage(filename);
     }
 }
@@ -174,27 +173,20 @@ void printDescription(int UID) {
 
 // Render the carousel
 int drawCarousel(Box* boxes) {
-    u32 colors[NUM_BOXES] = {C2D_Color32(0xFF, 0x00, 0x00, 0xFF),  // Red
-                             C2D_Color32(0x00, 0xFF, 0x00, 0xFF),  // Green
-                             C2D_Color32(0x00, 0x00, 0xFF, 0xFF),  // Blue
-                             C2D_Color32(0xFF, 0xFF, 0x00, 0xFF),  // Yellow
-                             C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
-
     C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
     C2D_Text text;
     float textScale = 0.5f; // Adjust this value to change the size of the text
     float textHeight = 10.0f; // Adjust this value to change the spacing below the box
-    float textWidth = text.width * textScale;
 
-    int selectedUID = -1;  // Add this line
+    int selectedUID = -1;
 
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-            selectedUID = boxes[i].UID;  // Add this line
+            selectedUID = boxes[i].UID;
 
             // Draw an outline around the box
-            C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
+            //C2D_DrawRectangle(boxes[i].x - OUTLINE_THICKNESS, boxes[i].y - OUTLINE_THICKNESS, 0.5f, boxes[i].width + 2 * OUTLINE_THICKNESS, boxes[i].height + 2 * OUTLINE_THICKNESS, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR, SELECTED_BOX_COLOR);
 
             // Look up the box's UID in the database
             char* game_name = NULL;
@@ -212,14 +204,15 @@ int drawCarousel(Box* boxes) {
                 float textWidth = text.width * textScale;
                 C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
             }
-
         }
-            C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
+
+        // Draw the image for the box
+        C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
     }
 
     C2D_TextBufDelete(textBuf); // Delete the text buffer
 
-    return selectedUID;  // Add this line
+    return selectedUID;
 }
 
 // Scroll the carousel left
@@ -276,14 +269,11 @@ int main(int argc, char* argv[]) {
     C2D_Prepare();
 
     // Remove for debugging
-	consoleInit(GFX_BOTTOM, NULL);
+	//consoleInit(GFX_BOTTOM, NULL);
 
     // Create screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
-
-    const char* filename = "img1.png";
-    C2D_Image img = convertPNGToC2DImage(filename);
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
@@ -323,14 +313,13 @@ int main(int argc, char* argv[]) {
         int selectedUID = drawCarousel(boxes);
 
         if (kHeld & KEY_A) {
-            C2D_DrawImageAt(img, x, y, 0.5f, NULL, 1.0f, 1.0f);
-            //launchTitle(selectedUID);
+            launchTitle(selectedUID);
         }
 
         // Render the bottom scene
-        //C2D_SceneBegin(bot);
-        //C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-        //printDescription(selectedUID);
+        C2D_SceneBegin(bot);
+        C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        printDescription(selectedUID);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
