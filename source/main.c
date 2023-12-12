@@ -28,6 +28,7 @@ typedef struct {
     float x, y;
     float width, height;
     int UID;
+    C2D_Image image;
 } Box;
 
 typedef struct {
@@ -100,6 +101,11 @@ void initializeBoxes(Box* boxes) {
         boxes[i].width = 128;
         boxes[i].height = 113;
         boxes[i].UID = i;  // Assign a unique UID to each box
+
+        // Load the PNG image for the game
+        char filename[256];
+        sprintf(filename, "game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
+        boxes[i].image = convertPNGToC2DImage(filename);
     }
 }
 
@@ -208,7 +214,7 @@ int drawCarousel(Box* boxes) {
             }
 
         }
-        C2D_DrawRectSolid(boxes[i].x, boxes[i].y, 0.5f, boxes[i].width, boxes[i].height, colors[i]);
+            C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
     }
 
     C2D_TextBufDelete(textBuf); // Delete the text buffer
