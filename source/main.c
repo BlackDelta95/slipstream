@@ -38,11 +38,11 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Galaga", "A popular space shooter game from the 80s"},
-    {1, "Super Mario Bros", "A classic platformer featuring the famous plumber, Mario"},
-    {2, "Donkey Kong", "An arcade game where Mario must rescue Pauline from Donkey Kong"},
-    {3, "Contra", "A run and gun action game featuring soldiers Bill and Lance"},
-    {4, "Legend of Zelda", "An action-adventure game set in the fantasy land of Hyrule"}
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon."},
+    {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
+    {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
+    {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
+    {4, "Metroid: Samus Returns", "Samus Aran returns for a Metroid adventure on 3DS."}
     // Add more records here...
 };
 
@@ -89,7 +89,7 @@ C2D_Image convertPNGToC2DImage(const char* filename) {
     free(image);
     lodepng_state_cleanup(&state);
     
-        printf("Loading image");
+    printf("Loading image");
     return img;
 }
 
@@ -152,8 +152,8 @@ void printDescription(int UID) {
 
     // Print the game description on the bottom screen
     if (game_description != NULL) {
-        C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
         C2D_Text text;
+        C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
         float textScale = 0.5f; // Adjust this value to change the size of the text
 
         C2D_TextParse(&text, textBuf, game_description);
@@ -186,12 +186,12 @@ int drawCarousel(Box* boxes) {
     float textHeight = 10.0f; // Adjust this value to change the spacing below the box
     float textWidth = text.width * textScale;
 
-    int selectedUID = -1;  // Add this line
+    int selectedUID = -1;
 
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-            selectedUID = boxes[i].UID;  // Add this line
+            selectedUID = boxes[i].UID;
 
             // Look up the box's UID in the database
             char* game_name = NULL;
@@ -211,12 +211,12 @@ int drawCarousel(Box* boxes) {
             }
 
         }
-            C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
+        C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
     }
 
     C2D_TextBufDelete(textBuf); // Delete the text buffer
 
-    return selectedUID;  // Add this line
+    return selectedUID;
 }
 
 // Scroll the carousel left
@@ -323,7 +323,6 @@ int main(int argc, char* argv[]) {
         // Render the bottom scene
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-        printDescription(selectedUID);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
@@ -336,6 +335,8 @@ int main(int argc, char* argv[]) {
         if (selectedIndex != -1 && abs(boxes[selectedIndex].x - target) < SCROLL_SPEED) {
             target = -1;  // Reset the target position
         }
+
+        printDescription(selectedUID);
 
         C3D_FrameEnd(0);
     }
