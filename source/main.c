@@ -38,13 +38,24 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon."},
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. Hello how are you this is a test"},
     {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
     {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
     {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
     {4, "Metroid: Samus Returns", "Samus Aran returns for a Metroid adventure on 3DS."}
     // Add more records here...
 };
+
+C2D_TextBuf gTextBuf;
+
+void initTextBuffers() {
+    gTextBuf = C2D_TextBufNew(4096); // Adjust size as needed
+}
+
+void cleanupTextBuffers() {
+    C2D_TextBufDelete(gTextBuf);
+}
+
 
 C2D_Image convertPNGToC2DImage(const char* filename) {
     unsigned error;
@@ -120,11 +131,12 @@ void launchTitle(int UID) {
         }
     }
 
-    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
+    C2D_TextBufClear(gTextBuf);  // Clear the buffer for reuse
     C2D_Text text;
+
     float textScale = 0.5f; // Adjust this value to change the size of the text
 
-    C2D_TextParse(&text, textBuf, "Launching Game");
+    C2D_TextParse(&text, gTextBuf, "Launching Game");
     C2D_TextOptimize(&text);
 
     // Adjust these values to change the position of the text
@@ -135,8 +147,6 @@ void launchTitle(int UID) {
     float margin = 60.0f;
 
     C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
-
-    C2D_TextBufDelete(textBuf); // Delete the text buffer
 }
 
 // Print the description of the currently selected game
@@ -152,11 +162,13 @@ void printDescription(int UID) {
 
     // Print the game description on the bottom screen
     if (game_description != NULL) {
-        C2D_Text text;
-        C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
         float textScale = 0.5f; // Adjust this value to change the size of the text
 
-        C2D_TextParse(&text, textBuf, game_description);
+        C2D_TextBufClear(gTextBuf);  // Clear the buffer for reuse
+        C2D_Text text;
+
+        // Reuse the existing text buffer
+        C2D_TextParse(&text, gTextBuf, game_description);
         C2D_TextOptimize(&text);
 
         // Adjust these values to change the position of the text
@@ -164,11 +176,9 @@ void printDescription(int UID) {
         float textY = 10.0f; // Adjust this value to change the vertical position of the text
 
         // Adjust this value to change the size of the margin
-        float margin = 60.0f;
+        float margin = 100.0f;
 
-        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
-
-        C2D_TextBufDelete(textBuf); // Delete the text buffer
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH);
     }
 }
 
@@ -180,7 +190,6 @@ int drawCarousel(Box* boxes) {
                              C2D_Color32(0xFF, 0xFF, 0x00, 0xFF),  // Yellow
                              C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
 
-    C2D_TextBuf textBuf = C2D_TextBufNew(4096); // Create a text buffer
     C2D_Text text;
     float textScale = 0.5f; // Adjust this value to change the size of the text
     float textHeight = 10.0f; // Adjust this value to change the spacing below the box
@@ -204,7 +213,7 @@ int drawCarousel(Box* boxes) {
 
             // Set the text for the selected box
             if (game_name != NULL) {
-                C2D_TextParse(&text, textBuf, game_name);
+                C2D_TextParse(&text, gTextBuf, game_name);
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
                 C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
@@ -213,8 +222,6 @@ int drawCarousel(Box* boxes) {
         }
         C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
     }
-
-    C2D_TextBufDelete(textBuf); // Delete the text buffer
 
     return selectedUID;
 }
@@ -281,6 +288,7 @@ int main(int argc, char* argv[]) {
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
+    initTextBuffers();
 
     // Main loop
     while (aptMainLoop()) {
@@ -316,9 +324,15 @@ int main(int argc, char* argv[]) {
         // Grab the UID of the currently selected box
         int selectedUID = drawCarousel(boxes);
 
+        // Launch the selected game
         if (kHeld & KEY_A) {
             launchTitle(selectedUID);
         }
+
+        //  Exit the application
+        if (kDown & KEY_START) {
+            break;
+        } 
 
         // Render the bottom scene
         C2D_SceneBegin(bot);
@@ -337,6 +351,8 @@ int main(int argc, char* argv[]) {
         }
 
         printDescription(selectedUID);
+            cleanupTextBuffers();
+
 
         C3D_FrameEnd(0);
     }
