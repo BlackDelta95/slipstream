@@ -42,7 +42,7 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. Hello how are you"},
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon"},
     {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
     {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
     {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
@@ -184,6 +184,25 @@ void printDescription(int UID) {
 
         C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - textX * 2);
     }
+}
+
+int checkSelectedBoxReachedTarget(Box* boxes, int numBoxes, float* target) {
+    int selectedIndex = -1;
+
+    // Loop through each box to find the selected one
+    for (int i = 0; i < numBoxes; i++) {
+        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
+            selectedIndex = i;
+            break;
+        }
+    }
+
+    // Check if the selected box has reached the target position
+    if (selectedIndex != -1 && abs(boxes[selectedIndex].x - *target) < SCROLL_SPEED) {
+        *target = -1;  // Reset the target position
+    }
+
+    return selectedIndex;
 }
 
 // Render the carousel
@@ -341,17 +360,7 @@ int main(int argc, char* argv[]) {
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
 
-        // Check if the selected box has reached the target position
-        int selectedIndex = -1;
-        for (int i = 0; i < NUM_BOXES; i++) {
-            if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-                selectedIndex = i;
-                break;
-            }
-        }
-        if (selectedIndex != -1 && abs(boxes[selectedIndex].x - target) < SCROLL_SPEED) {
-            target = -1;  // Reset the target position
-        }
+        int selectedBoxIndex = checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
 
         printDescription(selectedUID);
 
