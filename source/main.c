@@ -42,7 +42,7 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. Hello how are you this is a test"},
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. Hello how are you"},
     {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
     {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
     {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
@@ -182,7 +182,7 @@ void printDescription(int UID) {
         // Adjust this value to change the size of the margin
         float margin = 100.0f;
 
-        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - textX * 2);
     }
 }
 
@@ -194,10 +194,7 @@ int drawCarousel(Box* boxes) {
                              C2D_Color32(0xFF, 0xFF, 0x00, 0xFF),  // Yellow
                              C2D_Color32(0xFF, 0x00, 0xFF, 0xFF)}; // Magenta
 
-    C2D_Text text;
-    float textScale = 0.5f; // Adjust this value to change the size of the text
-    float textHeight = 10.0f; // Adjust this value to change the spacing below the box
-    float textWidth = text.width * textScale;
+
 
     int selectedUID = -1;
 
@@ -217,6 +214,10 @@ int drawCarousel(Box* boxes) {
 
             // Set the text for the selected box
             if (game_name != NULL) {
+                C2D_Text text;
+                float textScale = 0.5f; // Adjust this value to change the size of the text
+                float textHeight = 10.0f; // Adjust this value to change the spacing below the box
+
                 C2D_TextParse(&text, gTextBuf, game_name);
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
