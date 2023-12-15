@@ -23,6 +23,10 @@ float target = -1;  // Global variable to store the target position
 #define SELECTION_THRESHOLD 10.0f  // Adjust this value to control how close to the center a box needs to be to be selected
 #define OUTLINE_THICKNESS 3.0f  // Adjust this value to control the thickness of the outline
 
+#define GLOBAL_BACKGROUND_COLOR C2D_Color32(0x1A, 0x1A, 0x1A, 0xFF)
+#define GLOBAL_MAIN_TEXT_COLOR C2D_Color32(0x4C, 0xE4, 0x9D, 0xFF)
+#define GLOBAL_SECONDARY_TEXT_COLOR C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF)
+
 // Class for the boxes displayed on the screen
 typedef struct {
     float x, y;
@@ -178,7 +182,7 @@ void printDescription(int UID) {
         // Adjust this value to change the size of the margin
         float margin = 100.0f;
 
-        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH) - 2 * margin;
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - 2 * margin);
     }
 }
 
@@ -216,7 +220,7 @@ int drawCarousel(Box* boxes) {
                 C2D_TextParse(&text, gTextBuf, game_name);
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
-                C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, SELECTED_BOX_COLOR);
+                C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, GLOBAL_MAIN_TEXT_COLOR);
             }
 
         }
@@ -314,7 +318,7 @@ int main(int argc, char* argv[]) {
 
         // Render the top scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(top, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        C2D_TargetClear(top, GLOBAL_BACKGROUND_COLOR);
         C2D_SceneBegin(top);
 
         /* Draw the image at position (x, y) */
@@ -336,7 +340,7 @@ int main(int argc, char* argv[]) {
 
         // Render the bottom scene
         C2D_SceneBegin(bot);
-        C2D_TargetClear(bot, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
 
         // Check if the selected box has reached the target position
         int selectedIndex = -1;
