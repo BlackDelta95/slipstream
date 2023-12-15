@@ -355,11 +355,11 @@ int main(int argc, char* argv[]) {
         }
 
         printDescription(selectedUID);
-            cleanupTextBuffers();
-
 
         C3D_FrameEnd(0);
     }
+
+    cleanupTextBuffers();
 
     // Deinit libs
     C2D_Fini();
