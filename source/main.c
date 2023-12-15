@@ -42,7 +42,7 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokemon. Hello how are you this is a test"},
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. Hello how are you this is a test"},
     {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
     {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
     {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
