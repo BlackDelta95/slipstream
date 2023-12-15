@@ -178,7 +178,7 @@ void printDescription(int UID) {
         // Adjust this value to change the size of the margin
         float margin = 100.0f;
 
-        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH);
+        C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, SELECTED_BOX_COLOR, BOTTOM_SCREEN_WIDTH) - 2 * margin;
     }
 }
 
