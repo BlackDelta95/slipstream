@@ -125,7 +125,8 @@ C2D_Text getDescription(int UID) {
         float textX = 10.0f; // Adjust this value to change the horizontal position of the text
         float textY = 10.0f; // Adjust this value to change the vertical position of the text
 
-        //C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH / 2 - textX * 2);
+        C2D_TextBufDelete(tempBuf);
+
         return text;
     }
 }
@@ -197,7 +198,7 @@ int checkSelectedBoxReachedTarget(Box* boxes, int numBoxes, float* target) {
     return selectedIndex;
 }
 
-// Render the carousel
+// Renders the top half of the carousel
 int drawCarouselTop(Box* boxes) {
     int selectedUID = -1;
 
@@ -238,7 +239,7 @@ int drawCarouselTop(Box* boxes) {
     return selectedUID;
 }
 
-// Render the carousel
+// Renders the bottom half of the carousel
 int drawCarouselBottom(Box* boxes) {
     int selectedUID = -1;
 
@@ -269,7 +270,7 @@ int drawCarouselBottom(Box* boxes) {
                 C2D_TextParse(&text, tempBuf, game_name);
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
-                C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - textX * 2);            
+                C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH / 2 - textX);            
             }
         }
     }
@@ -371,6 +372,13 @@ int main(int argc, char* argv[]) {
         // Grab the UID of the currently selected box
         int selectedUID = drawCarouselTop(boxes);
 
+        // Render the bottom scene
+        C2D_SceneBegin(bot);
+        C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
+
+        checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
+        drawCarouselBottom(boxes);
+
         // Launch the selected game
         if (kHeld & KEY_A) {
             launchTitle(selectedUID);
@@ -379,14 +387,7 @@ int main(int argc, char* argv[]) {
         //  Exit the application
         if (kDown & KEY_START) {
             break;
-        } 
-
-        // Render the bottom scene
-        C2D_SceneBegin(bot);
-        C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
-
-        checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
-        drawCarouselBottom(boxes);
+        }
 
         C3D_FrameEnd(0);
     }
