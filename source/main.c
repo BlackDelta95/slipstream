@@ -463,39 +463,20 @@ int drawCarouselBottom (
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID; // Assign the UID of the selected box
 
-            // Retrieve the game description for the selected box from the database
-            char* game_description = NULL;
-            for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
-                if (database[j].UID == boxes[i].UID) {
-                    game_description = database[j].GameDescription; // Assign the game description if found
-                    break;
-                }
-            }
-
-            // Render the description of the selected game
-            if (game_description != NULL) {
-                C2D_Text text; // The text object to be rendered
-                float textScale = 0.5f; // Text size scaling factor
-                float textX = 10.0f; // Horizontal position adjustment for the text
-                float textY = 10.0f; // Vertical position adjustment for the text
-
-                // Parse and optimize the game description for rendering
-                C2D_TextParse(&text, Buffer, game_description);
-                C2D_TextOptimize(&text);
-
-                // Draw the text on the screen
-                C2D_DrawText(
-                    &text, 
-                    C2D_WithColor | C2D_WordWrap, 
-                    textX, // X position
-                    textY, // Y position
-                    0.5f, // Z depth
-                    textScale, // Text scale (X)
-                    textScale, // Text scale (Y)
-                    GLOBAL_SECONDARY_TEXT_COLOR, 
-                    BOTTOM_SCREEN_WIDTH / 2 - textX // Width constraint for word wrapping
-                );            
-            }
+            float textScale = 0.5f; // Text size scaling factor
+            float textX = 10.0f; // Horizontal position adjustment for the text
+            float textY = 10.0f; // Vertical position adjustment for the text
+            
+            DrawC2D_TextObject(
+                boxes[i].GameDescriptionObject, 
+                Buffer,  
+                boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
+                boxes[i].y + boxes[i].height + textHeight, // Y position
+                0.5f, // Z depth
+                textScale, // Text scale (X)
+                textScale, // Text scale (Y)
+                GLOBAL_MAIN_TEXT_COLOR
+            );
         }
     }
 
