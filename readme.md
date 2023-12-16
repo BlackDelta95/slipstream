@@ -21,3 +21,34 @@ To build and run this application, follow these steps:
 2. **Clone the Repository**: Clone this repository to your local machine.
    ```bash
    git clone https://github.com/BlackDelta95/slipstream
+3. **Build the application**: Navigate to the cloned directory and run the `make` command.
+4. **Transfer to 3DS**: After successful build, transfer the generated `.3dsx` file to your 3DS's SD card.
+5. **Run the Application**: Use a homebrew launcher to run the application on your 3DS.
+
+## Usage
+Use the D-pad to navigate through the carousel.
+Press 'A' to launch the selected game.
+Press 'START' to exit the application.
+Contributing
+Contributions to this project are welcome. Please adhere to the following guidelines:
+
+Fork the repository and create a new branch for your feature or fix.
+Write clean, documented, and well-tested code.
+Submit a pull request with a clear description of your changes.
+
+## Contributing
+Contributions to this project are welcome. Please adhere to the following guidelines:
+
+Fork the repository and create a new branch for your feature or fix.
+Write clean, documented, and well-tested code.
+Submit a pull request with a clear description of your changes.
+
+## License
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+Thanks to the citro2d and citro3d contributors.
+Special thanks to the Nintendo 3DS homebrew community.
+
+## Disclaimer
+This application is a homebrew project and is not affiliated with or endorsed by Nintendo.
