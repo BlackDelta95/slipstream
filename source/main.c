@@ -69,7 +69,6 @@ C2D_Text NewC2D_TextObject (
    // The buffer where the text object is to be stored
    C2D_TextBuf TextBuffer
 ) {
-
     C2D_Text textObject;
     C2D_TextParse(&textObject, TextBuffer, Text);
     C2D_TextOptimize(&textObject);
@@ -371,65 +370,6 @@ int checkSelectedBoxReachedTarget (
     }
 
     return selectedIndex; // Return the index of the selected box
-}
-
-int drawCarouselTop (
-/*
-    SYNOPSIS
-        Renders the top half of the carousel.
-
-    DESCRIPTION
-        Draws each box in the top half of the carousel and identifies the box that is
-        closest to the center of the screen as the selected box.
-
-    EXAMPLE
-        Box boxes[NUM_BOXES];
-        initializeBoxes(boxes);
-        int selectedUID = drawCarouselTop(boxes);
-
-        Renders the top half of the carousel and returns the UID of the selected box.
-*/
-    Box* boxes,
-
-    C2D_TextBuf Buffer
-) {
-    int selectedUID = -1; // Variable to hold the UID of the selected box
-
-    // Loop through each box to render them and identify the selected box
-    for (int i = 0; i < NUM_BOXES; i++) {
-        // Check if the box is near the center of the screen
-        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-            selectedUID = boxes[i].UID; // Assign the UID of the selected box
-
-            float textScale  = 0.5f; // Text size scaling factor
-            float textHeight = 10.0f; // Vertical position adjustment for the text
-            float textWidth  = boxes[i].GameNameObject.width * textScale;
-
-            DrawC2D_TextObject (
-                boxes[i].GameNameObject, 
-                Buffer,  
-                boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
-                boxes[i].y + boxes[i].height + textHeight, // Y position
-                0.5f, // Z depth
-                textScale, // Text scale (X)
-                textScale, // Text scale (Y)
-                GLOBAL_MAIN_TEXT_COLOR
-            );
-        }
-
-        // Draw each box in the carousel
-        C2D_DrawImageAt (
-            boxes[i].BoxArtObject, 
-            boxes[i].x, 
-            boxes[i].y, 
-            0.5f, // Z depth
-            NULL, // Parameters (not used here)
-            1.0f, // Scale X
-            1.0f  // Scale Y
-        );
-    }
-
-    return selectedUID; // Return the UID of the selected box
 }
 
 int drawCarousel(Box* boxes, C2D_TextBuf Buffer, bool drawTop) {
