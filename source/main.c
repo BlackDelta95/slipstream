@@ -57,6 +57,58 @@ Record database[] = {
     // Add more records here...
 };
 
+C2D_Text NewC2D_TextObject (
+    /*
+    
+    */
+
+   // The text string that is to be converted
+   char* Text,
+
+   // The buffer where the text object is to be stored
+   C2D_TextBuf TextBuffer
+) {
+
+    C2D_Text textObject;
+    C2D_TextParse(&textObject, TextBuffer, Text);
+
+    return textObject;
+}
+
+void DrawC2D_TextObject (
+/*
+    
+*/
+   // The text string that is to be converted
+   C2D_Text TextObject,
+
+   // The buffer where the above text object currently stored
+   C2D_TextBuf TextBuffer,
+
+   // Horizontal position to draw the text on.
+   float XPosition,
+
+   // Vertical position to draw the text on.
+   float YPosition,
+
+   // Depth value of the text. If unsure, pass 0.0f.
+   float ZPosition,
+
+   // Horizontal size of the font. 1.0f corresponds to the native size of the font.
+   float XScaling,
+
+   // Vertical size of the font. 1.0f corresponds to the native size of the font.
+   float YScaling,
+
+   // The color of the font.
+   u32 Color
+) {
+    //C2D_TextOptimize(TextObject);
+    C2D_DrawText (
+        &TextObject, C2D_WithColor, XPosition, YPosition, ZPosition, XScaling, YScaling, Color
+    );
+}
+
 u32 calculateTexturePosition (
 /*
     SYNOPSIS
@@ -648,6 +700,9 @@ int main (
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(top, GLOBAL_BACKGROUND_COLOR);
         C2D_SceneBegin(top);
+
+        C2D_Text testText = NewC2D_TextObject("Hello world", bottomScreenTextBuffer);
+        DrawC2D_TextObject(testText, bottomScreenTextBuffer, 0.0, 0.0, 0.0, 0.5, 0.5, GLOBAL_SECONDARY_TEXT_COLOR);
 
         // Draw the carousel and get the selected box's UID
         int selectedUID = drawCarouselTop(boxes);
