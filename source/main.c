@@ -52,15 +52,6 @@ Record database[] = {
 
 C2D_TextBuf gTextBuf;
 
-void initTextBuffers() {
-    gTextBuf = C2D_TextBufNew(4096); // Adjust size as needed
-}
-
-void cleanupTextBuffers() {
-    C2D_TextBufDelete(gTextBuf);
-}
-
-
 C2D_Image convertPNGToC2DImage(const char* filename) {
     unsigned error;
     unsigned char* image;
@@ -184,8 +175,8 @@ void printDescription(int UID) {
         float margin = 100.0f;
 
         C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - textX * 2);
-        C2D_TextBufDelete(tempBuf);
     }
+    C2D_TextBufDelete(tempBuf);
 }
 
 int checkSelectedBoxReachedTarget(Box* boxes, int numBoxes, float* target) {
@@ -217,6 +208,9 @@ int drawCarousel(Box* boxes) {
                              
     int selectedUID = -1;
 
+    C2D_TextBuf tempBuf;
+    tempBuf = C2D_TextBufNew(4096);
+
     for (int i = 0; i < NUM_BOXES; i++) {
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
@@ -233,9 +227,6 @@ int drawCarousel(Box* boxes) {
 
             // Set the text for the selected box
             if (game_name != NULL) {
-                C2D_TextBuf tempBuf;
-                tempBuf = C2D_TextBufNew(4096);
-
                 C2D_Text text;
                 float textScale = 0.5f; // Adjust this value to change the size of the text
                 float textHeight = 10.0f; // Adjust this value to change the spacing below the box
@@ -244,13 +235,13 @@ int drawCarousel(Box* boxes) {
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
                 C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, GLOBAL_MAIN_TEXT_COLOR);
-                C2D_TextBufDelete(tempBuf);
             }
 
         }
         C2D_DrawImageAt(boxes[i].image, boxes[i].x, boxes[i].y, 0.5f, NULL, 1.0f, 1.0f);
     }
 
+    C2D_TextBufDelete(tempBuf);
     return selectedUID;
 }
 
@@ -316,7 +307,6 @@ int main(int argc, char* argv[]) {
 
     Box boxes[NUM_BOXES];  // Create an array of NUM_BOXES boxes
     initializeBoxes(boxes);
-    initTextBuffers();
 
     // Main loop
     while (aptMainLoop()) {
@@ -372,8 +362,6 @@ int main(int argc, char* argv[]) {
 
         C3D_FrameEnd(0);
     }
-
-    cleanupTextBuffers();
 
     // Deinit libs
     C2D_Fini();
