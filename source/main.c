@@ -82,7 +82,6 @@ u32 calculateTexturePosition (
             ((x & 4) << 2) | ((y & 4) << 3))) * 4;
 }
 
-// Converts a PNG image file to a C2D_Image format
 C2D_Image convertPNGToC2DImage (
 /*
     SYNOPSIS
