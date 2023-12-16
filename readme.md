@@ -1,5 +1,8 @@
 # slipstream Launcher
 
+[![](https://github.com/BlackDelta95/slipstream/blob/main/doc/main.png "main_screen")](https://github.com/BlackDelta95/slipstream/blob/main/doc/main.png)
+
+
 ## Description
 This Nintendo 3DS application provides a carousel interface for selecting and launching games. It utilizes Citro2D and Citro3D libraries for rendering 2D graphics on the console. The application showcases a dynamic carousel with game box arts, names, and descriptions.
 
