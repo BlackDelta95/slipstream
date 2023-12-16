@@ -578,16 +578,16 @@ int main (
         C2D_TargetClear(top, GLOBAL_BACKGROUND_COLOR);
         C2D_SceneBegin(top);
 
-        // Draw the carousel and get the selected box's UID
-        int selectedUID = drawCarouselTop(boxes, bottomScreenTextBuffer);
+        // Draw the carousel and get the selected box's UID (true = top screen)
+        int selectedUID = drawCarousel(boxes, bottomScreenTextBuffer, true);
 
         // Begin rendering the bottom screen
         C2D_SceneBegin(bot);
         C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
 
-        // Check for selected box and draw the bottom carousel
+        // Check for selected box and draw the bottom carousel (false = bottom screen)
         checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
-        drawCarouselBottom(boxes, bottomScreenTextBuffer);
+        drawCarousel(boxes, bottomScreenTextBuffer, false);
 
         // Launch game if 'A' button is pressed
         if (kHeld & KEY_A) {
