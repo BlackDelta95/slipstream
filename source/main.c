@@ -344,7 +344,6 @@ int main(int argc, char* argv[]) {
 
     // Main loop
     while (aptMainLoop()) {
-
 	    //Scan all the inputs. This should be done once for each frame
 		hidScanInput();
 
