@@ -33,9 +33,9 @@ Press 'START' to exit the application.
 ## Contributing
 Contributions to this project are welcome. Please adhere to the following guidelines:
 
-Fork the repository and create a new branch for your feature or fix.
-Write clean, documented, and well-tested code.
-Submit a pull request with a clear description of your changes.
+1. Fork the repository and create a new branch for your feature or fix.
+2. Write clean, documented, and well-tested code.
+3. Submit a pull request with a clear description of your changes.
 
 ## License
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
