@@ -38,7 +38,7 @@ typedef struct {
     int UID;
     C2D_Image BoxArtObject;
     C2D_Text GameNameObject;
-    C2D_Text GameDescriptionObject
+    C2D_Text GameDescriptionObject;
 } Box;
 
 // Struct definition for game database records
@@ -104,7 +104,6 @@ void DrawC2D_TextObject (
    // The color of the font.
    u32 Color
 ) {
-    C2D_TextOptimize(&TextObject);
     C2D_DrawText (
         &TextObject, C2D_WithColor, XPosition, YPosition, ZPosition, XScaling, YScaling, Color
     );
@@ -410,22 +409,17 @@ int drawCarousel(Box* boxes, C2D_TextBuf Buffer, bool drawTop) {
                     textScale, // Text scale
                     GLOBAL_MAIN_TEXT_COLOR
                 );
-            } else {
+            }
+            else {
                 // Rendering logic for the bottom half of the carousel
                 float textScale = 0.5f;
                 float textX     = 10.0f;
                 float textY     = 10.0f;
 
-                DrawC2D_TextObject(
-                    boxes[i].GameDescriptionObject, 
-                    Buffer,  
-                    textX, // X position
-                    textY, // Y position
-                    0.5f, // Z depth
-                    textScale, // Text scale
-                    textScale, // Text scale
-                    GLOBAL_MAIN_TEXT_COLOR
-                );
+                C2D_Text description;
+                description = boxes[i].GameDescriptionObject;
+
+                C2D_DrawText(&description, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH / 2 - textX);    
             }
         }
     }
@@ -484,7 +478,7 @@ int main (
     C2D_Prepare();
 
     // Uncomment for debugging
-    // consoleInit(GFX_BOTTOM, NULL);
+    //consoleInit(GFX_BOTTOM, NULL);
 
     // Create render targets for the top and bottom screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -499,6 +493,8 @@ int main (
 
     // Main application loop
     while (aptMainLoop()) {
+        //printf("Glyphs loaded: %d", C2D_TextBufGetNumGlyphs(bottomScreenTextBuffer));
+
         // Scan the current input state
         hidScanInput();
 
@@ -509,7 +505,8 @@ int main (
         // Scroll carousel left or right based on input
         if (kHeld & KEY_DRIGHT) {
             scrollCarousel(boxes, true);
-        } else if (kHeld & KEY_DLEFT) {
+        } 
+        else if (kHeld & KEY_DLEFT) {
             scrollCarousel(boxes, false);
         }
 
@@ -531,7 +528,7 @@ int main (
 
         // Launch game if 'A' button is pressed
         if (kHeld & KEY_A) {
-            launchTitle(selectedUID);
+            //launchTitle(selectedUID);
         }
 
         // Exit the application if 'START' button is pressed
@@ -541,7 +538,7 @@ int main (
 
         // End the frame
         C2D_Flush();
-        C2D_TextBufClear(bottomScreenTextBuffer);
+        //C2D_TextBufClear(bottomScreenTextBuffer);
         C3D_FrameEnd(0);
     }
 
