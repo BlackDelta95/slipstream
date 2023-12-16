@@ -36,8 +36,9 @@ typedef struct {
     float x, y;
     float width, height;
     int UID;
-    C2D_Image image;
-    C2D_Text description;
+    C2D_Image BoxArtObject;
+    C2D_Text GameNameObject;
+    C2D_Text GameDescriptionObject
 } Box;
 
 // Struct definition for game database records
@@ -217,52 +218,6 @@ C2D_Image convertPNGToC2DImage (
     return img; // Return the created C2D_Image
 }
 
-C2D_Text getDescription (
-/*
-    SYNOPSIS
-        Retrieves the description of a game from the database and prepares it for rendering.
-
-    DESCRIPTION
-        Searches the database for a game record matching the given unique identifier (UID).
-        If found, it retrieves the game's description and prepares a C2D_Text object for rendering
-        this description on the screen.
-
-    EXAMPLE
-        int gameUID = 2; // Example UID
-        C2D_Text gameText = getDescription(gameUID);
-
-        Retrieves and prepares the description of the game with UID 2 for rendering.
-*/
-    // A unique identifier for the game
-    int UID
-) {
-    char* game_description = NULL; // Holds the game description retrieved from the database
-
-    // Loop through the database to find the record matching the given UID
-    for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
-        if (database[j].UID == UID) {
-            game_description = database[j].GameDescription; // Assign the description if found
-            break;
-        }
-    }
-
-    // If the game description is found, prepare it for rendering
-    if (game_description != NULL) {
-        C2D_TextBuf tempBuf; // Buffer for text rendering
-        tempBuf = C2D_TextBufNew(4096); // Allocate a new text buffer
-        C2D_Text text; // The text object to be rendered
-
-        // Parse and optimize the game description for rendering
-        C2D_TextParse(&text, tempBuf, game_description);
-        C2D_TextOptimize(&text);
-
-        // Delete the temporary buffer as it's no longer needed
-        C2D_TextBufDelete(tempBuf);
-
-        return text; // Return the prepared text object
-    }
-}
-
 void initializeBoxes (
 /*
     SYNOPSIS
@@ -284,7 +239,9 @@ void initializeBoxes (
         Initializes an array of boxes for the carousel.
 */
     // Pointer to an array of 'Box' structures
-    Box* boxes
+    Box* boxes,
+
+    C2D_TextBuf Buffer
 ) {
     for (int i = 0; i < NUM_BOXES; i++) {
         // Set position and dimensions for each box
@@ -296,13 +253,27 @@ void initializeBoxes (
         // Assign a unique UID to each box
         boxes[i].UID = i;
 
+        char* gameName;
+        char* gameDescription;
+
+        // Loop through the database to find the record matching the given UID
+        for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
+            if (database[j].UID == i) {
+                gameName = database[j].GameName; // Assign the description if found
+                gameDescription = database[j].GameDescription; // Assign the description if found
+                break;
+            }
+        }
+
         // Load the PNG image for the game
         char filename[256];
         sprintf(filename, "game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
-        boxes[i].image = convertPNGToC2DImage(filename);
+        boxes[i].BoxArtObject = convertPNGToC2DImage(filename);
+        boxes[i].GameNameObject = NewC2D_TextObject(gameName, Buffer);
+        boxes[i].GameDescriptionObject = NewC2D_TextObject(gameDescription, Buffer);
 
         // Retrieve and store the game description
-        boxes[i].description = getDescription(i);
+        //boxes[i].description = getDescription(i);
     }
 }
 
@@ -423,13 +394,9 @@ int drawCarouselTop (
 */
     Box* boxes,
 
-    C2DTextBuf Buffer
+    C2D_TextBuf Buffer
 ) {
     int selectedUID = -1; // Variable to hold the UID of the selected box
-
-    // Create a text buffer for rendering text
-    C2D_TextBuf tempBuf;
-    tempBuf = C2D_TextBufNew(4096);
 
     // Loop through each box to render them and identify the selected box
     for (int i = 0; i < NUM_BOXES; i++) {
@@ -437,44 +404,12 @@ int drawCarouselTop (
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID; // Assign the UID of the selected box
 
-            // Retrieve the game name for the selected box from the database
-            char* game_name = NULL;
-            for (int j = 0; j < sizeof(database) / sizeof(Record); j++) {
-                if (database[j].UID == boxes[i].UID) {
-                    game_name = database[j].GameName; // Assign the game name if found
-                    break;
-                }
-            }
+            float textScale = 0.5f; // Text size scaling factor
+            float textHeight = 10.0f; // Vertical position adjustment for the text
+            float textWidth = boxes[i].GameNameObject.width * textScale;
 
-            // Render the name of the selected game
-            if (game_name != NULL) {
-                C2D_Text text; // The text object to be rendered
-                float textScale = 0.5f; // Text size scaling factor
-                float textHeight = 10.0f; // Vertical position adjustment for the text
-
-                // Parse and optimize the game name for rendering
-                C2D_TextParse(&text, tempBuf, game_name);
-                C2D_TextOptimize(&text);
-
-                // Calculate the width of the rendered text
-                float textWidth = text.width * textScale;
-
-                // Draw the text on the screen
-                C2D_DrawText(
-                    &text, 
-                    C2D_WithColor, 
-                    boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
-                    boxes[i].y + boxes[i].height + textHeight, // Y position
-                    0.5f, // Z depth
-                    textScale, // Text scale (X)
-                    textScale, // Text scale (Y)
-                    GLOBAL_MAIN_TEXT_COLOR
-                );
-            }
-
-            C2D_Text gameName = NewC2D_TextObject(game_name, bottomScreenTextBuffer);
             DrawC2D_TextObject(
-                gameName, 
+                boxes[i].GameNameObject, 
                 Buffer,  
                 boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
                 boxes[i].y + boxes[i].height + textHeight, // Y position
@@ -487,7 +422,7 @@ int drawCarouselTop (
 
         // Draw each box in the carousel
         C2D_DrawImageAt(
-            boxes[i].image, 
+            boxes[i].BoxArtObject, 
             boxes[i].x, 
             boxes[i].y, 
             0.5f, // Z depth
@@ -496,9 +431,6 @@ int drawCarouselTop (
             1.0f  // Scale Y
         );
     }
-
-    // Delete the temporary text buffer
-    C2D_TextBufDelete(tempBuf);
 
     return selectedUID; // Return the UID of the selected box
 }
@@ -687,12 +619,12 @@ int main (
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-    // Initialize an array of boxes for the carousel
-    Box boxes[NUM_BOXES];
-    initializeBoxes(boxes);
-
     // Initialize the text buffer for the bottom screen
     C2D_TextBuf bottomScreenTextBuffer = C2D_TextBufNew(4096);
+
+    // Initialize an array of boxes for the carousel
+    Box boxes[NUM_BOXES];
+    initializeBoxes(boxes, bottomScreenTextBuffer);
 
     // Main application loop
     while (aptMainLoop()) {
@@ -715,11 +647,10 @@ int main (
         C2D_TargetClear(top, GLOBAL_BACKGROUND_COLOR);
         C2D_SceneBegin(top);
 
-        C2D_Text testText = NewC2D_TextObject("Hello world", bottomScreenTextBuffer);
-        DrawC2D_TextObject(testText, bottomScreenTextBuffer, 0.0, 0.0, 0.0, 0.5, 0.5, GLOBAL_SECONDARY_TEXT_COLOR);
+
 
         // Draw the carousel and get the selected box's UID
-        int selectedUID = drawCarouselTop(boxes);
+        int selectedUID = drawCarouselTop(boxes, bottomScreenTextBuffer);
 
         // Begin rendering the bottom screen
         C2D_SceneBegin(bot);
@@ -727,7 +658,7 @@ int main (
 
         // Check for selected box and draw the bottom carousel
         checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
-        drawCarouselBottom(boxes, bottomScreenTextBuffer);
+        //drawCarouselBottom(boxes, bottomScreenTextBuffer);
 
         // Launch game if 'A' button is pressed
         if (kHeld & KEY_A) {
@@ -738,6 +669,8 @@ int main (
         if (kDown & KEY_START) {
             break;
         }
+
+        C2D_TextBufClear(bottomScreenTextBuffer);
 
         // End the frame
         C3D_FrameEnd(0);
