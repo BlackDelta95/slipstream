@@ -265,7 +265,7 @@ void initializeBoxes (
 
         // Load the PNG image for the game
         char filename[256];
-        sprintf(filename, "game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
+        sprintf(filename, "images/game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
         boxes[i].BoxArtObject          = convertPNGToC2DImage(filename);
         boxes[i].GameNameObject        = NewC2D_TextObject(gameName, Buffer);
         boxes[i].GameDescriptionObject = NewC2D_TextObject(gameDescription, Buffer);
