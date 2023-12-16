@@ -42,7 +42,7 @@ typedef struct {
 } Record;
 
 Record database[] = {
-    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon"},
+    {0, "Pokémon Alpha Sapphire", "An epic adventure in the Hoenn region with your Pokémon. HELLO THIS IS A TEST"},
     {1, "Super Mario 3D Land", "Join Mario in a 3D platforming adventure full of fun."},
     {2, "Super Smash Bros. for Nintendo 3DS", "Battle with famous characters in ultimate brawling."},
     {3, "The Legend of Zelda: Ocarina of Time 3D", "Embark on a quest to save Hyrule with Link."},
@@ -164,15 +164,16 @@ void printDescription(int UID) {
         }
     }
 
+    C2D_TextBuf tempBuf;
+    tempBuf = C2D_TextBufNew(4096);
+
     // Print the game description on the bottom screen
     if (game_description != NULL) {
         float textScale = 0.5f; // Adjust this value to change the size of the text
 
-        C2D_TextBufClear(gTextBuf);  // Clear the buffer for reuse
         C2D_Text text;
-
         // Reuse the existing text buffer
-        C2D_TextParse(&text, gTextBuf, game_description);
+        C2D_TextParse(&text, tempBuf, game_description);
         C2D_TextOptimize(&text);
 
         // Adjust these values to change the position of the text
@@ -183,6 +184,7 @@ void printDescription(int UID) {
         float margin = 100.0f;
 
         C2D_DrawText(&text, C2D_WithColor | C2D_WordWrap, textX, textY, 0.5f, textScale, textScale, GLOBAL_SECONDARY_TEXT_COLOR, BOTTOM_SCREEN_WIDTH - textX * 2);
+        C2D_TextBufDelete(tempBuf);
     }
 }
 
@@ -231,14 +233,18 @@ int drawCarousel(Box* boxes) {
 
             // Set the text for the selected box
             if (game_name != NULL) {
+                C2D_TextBuf tempBuf;
+                tempBuf = C2D_TextBufNew(4096);
+
                 C2D_Text text;
                 float textScale = 0.5f; // Adjust this value to change the size of the text
                 float textHeight = 10.0f; // Adjust this value to change the spacing below the box
 
-                C2D_TextParse(&text, gTextBuf, game_name);
+                C2D_TextParse(&text, tempBuf, game_name);
                 C2D_TextOptimize(&text);
                 float textWidth = text.width * textScale;
                 C2D_DrawText(&text, C2D_WithColor, boxes[i].x + boxes[i].width / 2 - textWidth / 2, boxes[i].y + boxes[i].height + textHeight, 0.5f, textScale, textScale, GLOBAL_MAIN_TEXT_COLOR);
+                C2D_TextBufDelete(tempBuf);
             }
 
         }
