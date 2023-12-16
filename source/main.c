@@ -1,3 +1,5 @@
+//hi
+
 #include <stdio.h>
 #include <3ds.h>
 #include <citro2d.h>
@@ -478,18 +480,18 @@ int main (
     C2D_Prepare();
 
     // Uncomment for debugging
-    consoleInit(GFX_BOTTOM, NULL);
+     //consoleInit(GFX_BOTTOM, NULL);
 
     // Create render targets for the top and bottom screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
     C3D_RenderTarget* bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     // Initialize the text buffer for the bottom screen
-    C2D_TextBuf bottomScreenTextBuffer = C2D_TextBufNew(4096);
+    C2D_TextBuf carouselTextBuffer = C2D_TextBufNew(512);
 
     // Initialize an array of boxes for the carousel
     Box boxes[NUM_BOXES];
-    initializeBoxes(boxes, bottomScreenTextBuffer);
+    initializeBoxes(boxes, carouselTextBuffer);
 
     // Main application loop
     while (aptMainLoop()) {
@@ -514,19 +516,19 @@ int main (
         C2D_SceneBegin(top);
 
         // Draw the carousel and get the selected box's UID (true = top screen)
-        int selectedUID = drawCarousel(boxes, bottomScreenTextBuffer, true);
+        int selectedUID = drawCarousel(boxes, carouselTextBuffer, true);
 
         // Begin rendering the bottom screen
-        //C2D_SceneBegin(bot);
-        //C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
+        C2D_SceneBegin(bot);
+        C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
 
         // Check for selected box and draw the bottom carousel (false = bottom screen)
-        checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
-        drawCarousel(boxes, bottomScreenTextBuffer, false);
+        //checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
+        drawCarousel(boxes, carouselTextBuffer, false);
 
         // Launch game if 'A' button is pressed
         if (kHeld & KEY_A) {
-            //launchTitle(selectedUID);
+            launchTitle(selectedUID);
         }
 
         // Exit the application if 'START' button is pressed
@@ -534,16 +536,14 @@ int main (
             break;
         }
 
-        printf("Glyphs loaded: %d", C2D_TextBufGetNumGlyphs(bottomScreenTextBuffer));
-
         // End the frame
         C2D_Flush();
-        //C2D_TextBufClear(bottomScreenTextBuffer);
+        C2D_TextBufClear(carouselTextBuffer);
         C3D_FrameEnd(0);
     }
 
     // Clean up and deinitialize libraries
-    C2D_TextBufDelete(bottomScreenTextBuffer);
+    C2D_TextBufDelete(carouselTextBuffer);
     C2D_Fini();
     C3D_Fini();
     gfxExit();
