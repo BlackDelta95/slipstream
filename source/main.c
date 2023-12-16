@@ -72,6 +72,7 @@ C2D_Text NewC2D_TextObject (
 
     C2D_Text textObject;
     C2D_TextParse(&textObject, TextBuffer, Text);
+    C2D_TextOptimize(&textObject);
 
     return textObject;
 }
@@ -104,7 +105,7 @@ void DrawC2D_TextObject (
    // The color of the font.
    u32 Color
 ) {
-    //C2D_TextOptimize(TextObject);
+    C2D_TextOptimize(&TextObject);
     C2D_DrawText (
         &TextObject, C2D_WithColor, XPosition, YPosition, ZPosition, XScaling, YScaling, Color
     );
@@ -214,7 +215,6 @@ C2D_Image convertPNGToC2DImage (
     free(image);
     lodepng_state_cleanup(&state);
 
-    printf("Image loaded: %s\n", filename);
     return img; // Return the created C2D_Image
 }
 
@@ -247,7 +247,7 @@ void initializeBoxes (
         // Set position and dimensions for each box
         boxes[i].x = i * (BOX_WIDTH + BOX_SPACING);
         boxes[i].y = BOX_TOP_MARGIN;
-        boxes[i].width = 128;
+        boxes[i].width  = 128;
         boxes[i].height = 130;
 
         // Assign a unique UID to each box
@@ -268,12 +268,9 @@ void initializeBoxes (
         // Load the PNG image for the game
         char filename[256];
         sprintf(filename, "game%d.png", i);  // Assuming the images are named game0.png, game1.png, etc.
-        boxes[i].BoxArtObject = convertPNGToC2DImage(filename);
-        boxes[i].GameNameObject = NewC2D_TextObject(gameName, Buffer);
+        boxes[i].BoxArtObject          = convertPNGToC2DImage(filename);
+        boxes[i].GameNameObject        = NewC2D_TextObject(gameName, Buffer);
         boxes[i].GameDescriptionObject = NewC2D_TextObject(gameDescription, Buffer);
-
-        // Retrieve and store the game description
-        //boxes[i].description = getDescription(i);
     }
 }
 
@@ -404,11 +401,11 @@ int drawCarouselTop (
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID; // Assign the UID of the selected box
 
-            float textScale = 0.5f; // Text size scaling factor
+            float textScale  = 0.5f; // Text size scaling factor
             float textHeight = 10.0f; // Vertical position adjustment for the text
-            float textWidth = boxes[i].GameNameObject.width * textScale;
+            float textWidth  = boxes[i].GameNameObject.width * textScale;
 
-            DrawC2D_TextObject(
+            DrawC2D_TextObject (
                 boxes[i].GameNameObject, 
                 Buffer,  
                 boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
@@ -421,7 +418,7 @@ int drawCarouselTop (
         }
 
         // Draw each box in the carousel
-        C2D_DrawImageAt(
+        C2D_DrawImageAt (
             boxes[i].BoxArtObject, 
             boxes[i].x, 
             boxes[i].y, 
@@ -464,44 +461,28 @@ int drawCarouselBottom (
             selectedUID = boxes[i].UID; // Assign the UID of the selected box
 
             float textScale = 0.5f; // Text size scaling factor
-            float textX = 10.0f; // Horizontal position adjustment for the text
-            float textY = 10.0f; // Vertical position adjustment for the text
-            
-            DrawC2D_TextObject(
+            float textX     = 10.0f; // Horizontal position adjustment for the text
+            float textY     = 10.0f; // Vertical position adjustment for the text
+
+            // Render the description of the selected game
+             DrawC2D_TextObject (
                 boxes[i].GameDescriptionObject, 
                 Buffer,  
-                boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
-                boxes[i].y + boxes[i].height + textHeight, // Y position
+                textX, // X position
+                textY, // Y position
                 0.5f, // Z depth
                 textScale, // Text scale (X)
                 textScale, // Text scale (Y)
                 GLOBAL_MAIN_TEXT_COLOR
             );
+
         }
     }
 
     return selectedUID; // Return the UID of the selected box
 }
 
-void scrollCarouselLeft (
-/*
-    SYNOPSIS
-        Scrolls the carousel to the left.
-
-    DESCRIPTION
-        Moves each box in the carousel to the left. It finds the currently selected box,
-        then adjusts the positions of all boxes accordingly. If a box moves past the left edge
-        of the carousel, it wraps around to the right.
-
-    EXAMPLE
-        Box boxes[NUM_BOXES];
-        initializeBoxes(boxes);
-        scrollCarouselLeft(boxes);
-
-        Initializes a carousel of boxes and then scrolls it to the left.
-*/
-    Box* boxes
-) {
+void scrollCarousel(Box* boxes, bool scrollLeft) {
     int selectedIndex = -1; // Variable to hold the index of the selected box
 
     // Find the selected box
@@ -512,57 +493,15 @@ void scrollCarouselLeft (
         }
     }
 
-    // Calculate the target position for the box to the left of the selected one
-    float target = boxes[(selectedIndex - 1 + NUM_BOXES) % NUM_BOXES].x;
-
-    // Move each box in the carousel to the left
+    // Move each box in the carousel
     for (int i = 0; i < NUM_BOXES; i++) {
-        boxes[i].x -= SCROLL_SPEED; // Scroll each box to the left
-        // Wrap around if a box moves past the left edge
-        if (boxes[i].x + boxes[i].width < 0) {
+        // Determine scroll direction and adjust position
+        boxes[i].x += (scrollLeft ? -SCROLL_SPEED : SCROLL_SPEED);
+
+        // Wrap around if a box moves past the edge
+        if (scrollLeft && (boxes[i].x + boxes[i].width < 0)) {
             boxes[i].x += totalWidth; // Reset box position to the right
-        }
-    }
-}
-
-void scrollCarouselRight (
-/*
-    SYNOPSIS
-        Scrolls the carousel to the right.
-
-    DESCRIPTION
-        Moves each box in the carousel to the right. It finds the currently selected box,
-        then adjusts the positions of all boxes accordingly. If a box moves past the right edge
-        of the carousel, it wraps around to the left.
-
-    EXAMPLE
-        Box boxes[NUM_BOXES];
-        initializeBoxes(boxes);
-        scrollCarouselRight(boxes);
-
-        Initializes a carousel of boxes and then scrolls it to the right.
-*/
-    // Array of 'Box' structures representing the boxes in the carousel
-    Box* boxes
-) {
-    int selectedIndex = -1; // Variable to hold the index of the selected box
-
-    // Find the selected box
-    for (int i = 0; i < NUM_BOXES; i++) {
-        if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
-            selectedIndex = i; // Assign the index of the selected box
-            break;
-        }
-    }
-
-    // Calculate the target position for the box to the right of the selected one
-    float target = boxes[(selectedIndex + 1) % NUM_BOXES].x;
-
-    // Move each box in the carousel to the right
-    for (int i = 0; i < NUM_BOXES; i++) {
-        boxes[i].x += SCROLL_SPEED; // Scroll each box to the right
-        // Wrap around if a box moves past the right edge
-        if (boxes[i].x > totalWidth - BOX_WIDTH) {
+        } else if (!scrollLeft && (boxes[i].x > totalWidth - BOX_WIDTH)) {
             boxes[i].x -= totalWidth; // Reset box position to the left
         }
     }
@@ -618,17 +557,15 @@ int main (
 
         // Scroll carousel left or right based on input
         if (kHeld & KEY_DRIGHT) {
-            scrollCarouselLeft(boxes);
+            scrollCarousel(boxes, true);
         } else if (kHeld & KEY_DLEFT) {
-            scrollCarouselRight(boxes);
+            scrollCarousel(boxes, false);
         }
 
         // Begin rendering the top screen
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(top, GLOBAL_BACKGROUND_COLOR);
         C2D_SceneBegin(top);
-
-
 
         // Draw the carousel and get the selected box's UID
         int selectedUID = drawCarouselTop(boxes, bottomScreenTextBuffer);
@@ -639,7 +576,7 @@ int main (
 
         // Check for selected box and draw the bottom carousel
         checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
-        //drawCarouselBottom(boxes, bottomScreenTextBuffer);
+        drawCarouselBottom(boxes, bottomScreenTextBuffer);
 
         // Launch game if 'A' button is pressed
         if (kHeld & KEY_A) {
@@ -651,9 +588,9 @@ int main (
             break;
         }
 
-        C2D_TextBufClear(bottomScreenTextBuffer);
-
         // End the frame
+        C2D_Flush();
+        C2D_TextBufClear(bottomScreenTextBuffer);
         C3D_FrameEnd(0);
     }
 
