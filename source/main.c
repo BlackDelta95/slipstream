@@ -421,7 +421,9 @@ int drawCarouselTop (
 
         Renders the top half of the carousel and returns the UID of the selected box.
 */
-    Box* boxes
+    Box* boxes,
+
+    C2DTextBuf Buffer
 ) {
     int selectedUID = -1; // Variable to hold the UID of the selected box
 
@@ -469,6 +471,18 @@ int drawCarouselTop (
                     GLOBAL_MAIN_TEXT_COLOR
                 );
             }
+
+            C2D_Text gameName = NewC2D_TextObject(game_name, bottomScreenTextBuffer);
+            DrawC2D_TextObject(
+                gameName, 
+                Buffer,  
+                boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
+                boxes[i].y + boxes[i].height + textHeight, // Y position
+                0.5f, // Z depth
+                textScale, // Text scale (X)
+                textScale, // Text scale (Y)
+                GLOBAL_MAIN_TEXT_COLOR
+            );
         }
 
         // Draw each box in the carousel
