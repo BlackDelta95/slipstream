@@ -478,7 +478,7 @@ int main (
     C2D_Prepare();
 
     // Uncomment for debugging
-    //consoleInit(GFX_BOTTOM, NULL);
+    consoleInit(GFX_BOTTOM, NULL);
 
     // Create render targets for the top and bottom screens
     C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -493,8 +493,6 @@ int main (
 
     // Main application loop
     while (aptMainLoop()) {
-        //printf("Glyphs loaded: %d", C2D_TextBufGetNumGlyphs(bottomScreenTextBuffer));
-
         // Scan the current input state
         hidScanInput();
 
@@ -519,8 +517,8 @@ int main (
         int selectedUID = drawCarousel(boxes, bottomScreenTextBuffer, true);
 
         // Begin rendering the bottom screen
-        C2D_SceneBegin(bot);
-        C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
+        //C2D_SceneBegin(bot);
+        //C2D_TargetClear(bot, GLOBAL_BACKGROUND_COLOR);
 
         // Check for selected box and draw the bottom carousel (false = bottom screen)
         checkSelectedBoxReachedTarget(boxes, NUM_BOXES, &target);
@@ -535,6 +533,8 @@ int main (
         if (kDown & KEY_START) {
             break;
         }
+
+        printf("Glyphs loaded: %d", C2D_TextBufGetNumGlyphs(bottomScreenTextBuffer));
 
         // End the frame
         C2D_Flush();
