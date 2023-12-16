@@ -432,50 +432,61 @@ int drawCarouselTop (
     return selectedUID; // Return the UID of the selected box
 }
 
-int drawCarouselBottom (
-/*
-    SYNOPSIS
-        Renders the bottom half of the carousel.
-
-    DESCRIPTION
-        Draws each box in the bottom half of the carousel. If a box is near the center
-        of the screen, it displays additional information like the game description.
-
-    EXAMPLE
-        Box boxes[NUM_BOXES];
-        initializeBoxes(boxes);
-        C2D_TextBuf bottomScreenTextBuffer = C2D_TextBufNew(4096);
-        drawCarouselBottom(boxes, bottomScreenTextBuffer);
-
-        Renders the bottom half of the carousel with additional game information.
-*/
-    Box* boxes,
-    C2D_TextBuf Buffer
-) {
+int drawCarousel(Box* boxes, C2D_TextBuf Buffer, bool drawTop) {
     int selectedUID = -1; // Variable to hold the UID of the selected box
 
     // Loop through each box to render them and identify the selected box
     for (int i = 0; i < NUM_BOXES; i++) {
+        if (drawTop) {
+            // Draw each box in the carousel only if drawing the top half
+            C2D_DrawImageAt(
+                boxes[i].BoxArtObject, 
+                boxes[i].x, 
+                boxes[i].y, 
+                0.5f, // Z depth
+                NULL, // Parameters (not used here)
+                1.0f, // Scale X
+                1.0f  // Scale Y
+            );
+        }
+
         // Check if the box is near the center of the screen
         if (abs(boxes[i].x + boxes[i].width / 2 - TOP_SCREEN_WIDTH / 2) < SELECTION_THRESHOLD) {
             selectedUID = boxes[i].UID; // Assign the UID of the selected box
 
-            float textScale = 0.5f; // Text size scaling factor
-            float textX     = 10.0f; // Horizontal position adjustment for the text
-            float textY     = 10.0f; // Vertical position adjustment for the text
+            if (drawTop) {
+                // Rendering logic for the top half of the carousel
+                float textScale  = 0.5f;
+                float textHeight = 10.0f;
+                float textWidth  = boxes[i].GameNameObject.width * textScale;
 
-            // Render the description of the selected game
-             DrawC2D_TextObject (
-                boxes[i].GameDescriptionObject, 
-                Buffer,  
-                textX, // X position
-                textY, // Y position
-                0.5f, // Z depth
-                textScale, // Text scale (X)
-                textScale, // Text scale (Y)
-                GLOBAL_MAIN_TEXT_COLOR
-            );
+                DrawC2D_TextObject(
+                    boxes[i].GameNameObject, 
+                    Buffer,  
+                    boxes[i].x + boxes[i].width / 2 - textWidth / 2, // X position
+                    boxes[i].y + boxes[i].height + textHeight, // Y position
+                    0.5f, // Z depth
+                    textScale, // Text scale
+                    textScale, // Text scale
+                    GLOBAL_MAIN_TEXT_COLOR
+                );
+            } else {
+                // Rendering logic for the bottom half of the carousel
+                float textScale = 0.5f;
+                float textX     = 10.0f;
+                float textY     = 10.0f;
 
+                DrawC2D_TextObject(
+                    boxes[i].GameDescriptionObject, 
+                    Buffer,  
+                    textX, // X position
+                    textY, // Y position
+                    0.5f, // Z depth
+                    textScale, // Text scale
+                    textScale, // Text scale
+                    GLOBAL_MAIN_TEXT_COLOR
+                );
+            }
         }
     }
 
